@@ -2,6 +2,7 @@
 
 from nightengine import A
 
+from ..config import W
 from ..content import CONTENT
 from ..rules import explore, skilltest
 from ..ui import layout
@@ -9,14 +10,16 @@ from ..ui.gesture import inside
 from ..ui.layout import CARD_H, CARD_W
 from .base import Button, Menu, QScene
 
+COMMIT_Y = 640
+
 DRAW_FRAMES = 54
 
 
 def commit_rects(n: int) -> list[tuple]:
     """Cards at 1x (sharp text), overlapping when there are many. A later card lies on top of an earlier one."""
-    step = min(CARD_W + 4, (320 - 16 - CARD_W) / max(1, n - 1))
-    x0 = (320 - (CARD_W + step * (n - 1))) / 2
-    return [(int(x0 + i * step), 352, CARD_W, CARD_H) for i in range(n)]
+    step = min(CARD_W + 6, (W - 40 - CARD_W) / max(1, n - 1))
+    x0 = (W - (CARD_W + step * (n - 1))) / 2
+    return [(int(x0 + i * step), COMMIT_Y, CARD_W, CARD_H) for i in range(n)]
 
 
 def commit_at(n: int, x: int, y: int) -> int | None:

@@ -1,4 +1,10 @@
-"""Weapon specials (`weapon.special` in data/cards). Each is fn(ctx, roll, p) and may change `roll.damage`."""
+"""Weapon specials (`weapon.special` in data/cards). Each is fn(ctx, roll, p) and may change `roll.damage`.
+
+A gun has three places for code (GDD 10.3): its `special` here changes each of its rolls; its card `effects` are
+Equip ops (`mech/ops.py`) that run once when it is equipped; its card `hooks` (`mech/hooks.py`) react to battle
+events while it is equipped. A special also runs for the drag preview, on a roll with `preview` set and no faces:
+change only `roll.damage` then.
+"""
 
 from .registry import special
 
@@ -26,6 +32,6 @@ def exact_six(ctx, roll, p):
 @special("dreamscape")
 def dreamscape(ctx, roll, p):
     """On hit, the Hunter's shields become 0 (Tormented Dreamscape)."""
-    if roll.hits > 0 and ctx.hero.shields:
+    if roll.hits > 0 and ctx.hero.shields and not roll.preview:
         ctx.hero.shields = 0
         ctx.emit("shield_break", who=0)

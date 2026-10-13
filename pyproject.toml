@@ -24,12 +24,12 @@ known-first-party = ["queen", "nightengine"]
 
 [tool.nightengine.web]
 title = "Queen"
-width = 320
-height = 714
+width = 540
+height = 1170
 packages = ["queen", "nightengine"]
 assets = ["assets", "queen/data"]
 
-# Portrait 320x714 on every target: an exact 4x on the Pixel 10 Pro (1280x2856).
+# Portrait 540x1170 on every target: an exact 2x on 1080x2340, the smallest flagship screens.
 [tool.nightengine.targets.desktop]
 controls = ["keyboard", "mouse"]
 

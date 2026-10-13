@@ -1,5 +1,5 @@
 {
- "_doc": "The Sovereign's map (GDD 7.4). `pos` is the node centre on the 320-wide map. `on_reveal`, `on_enter` and action `effects` are story ops.",
+ "_doc": "The Sovereign's map (GDD 7.4). `pos` is the node centre on the 540-wide map (y is offset by layout.MAP_Y). `on_reveal`, `on_enter` and action `effects` are story ops.",
  "BREACH_POINT": {
   "name": "Breach Point",
   "art": "lab",
@@ -8,8 +8,8 @@
    80
   ],
   "pos": [
-   160,
-   300
+   270,
+   548
   ],
   "shroud": 1,
   "clues": 0,
@@ -35,8 +35,8 @@
    230
   ],
   "pos": [
-   70,
-   240
+   120,
+   440
   ],
   "shroud": 2,
   "clues": 2,
@@ -61,8 +61,8 @@
    250
   ],
   "pos": [
-   250,
-   240
+   420,
+   440
   ],
   "shroud": 2,
   "clues": 1,
@@ -89,8 +89,8 @@
    280
   ],
   "pos": [
-   160,
-   180
+   270,
+   332
   ],
   "shroud": 2,
   "clues": 2,
@@ -133,8 +133,8 @@
    100
   ],
   "pos": [
-   70,
-   120
+   120,
+   222
   ],
   "shroud": 4,
   "clues": 3,
@@ -185,8 +185,8 @@
    200
   ],
   "pos": [
-   250,
-   120
+   420,
+   222
   ],
   "shroud": 2,
   "clues": 2,
@@ -223,8 +223,8 @@
    150
   ],
   "pos": [
-   160,
-   64
+   270,
+   121
   ],
   "shroud": 3,
   "clues": 2,
@@ -260,8 +260,8 @@
    160
   ],
   "pos": [
-   160,
-   14
+   270,
+   30
   ],
   "shroud": 0,
   "clues": 0,

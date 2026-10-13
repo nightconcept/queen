@@ -30,7 +30,7 @@ CONFIG = AppConfig(
     keys=KEYS,
     replays=REPLAYS,
     fps=60,
-    label_xy=(4, 700),
+    label_xy=(8, 1150),
     mouse=True,
     vendor="NightCircle",
 )

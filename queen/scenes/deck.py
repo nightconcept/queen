@@ -2,20 +2,23 @@
 
 from nightengine import A
 
+from ..config import SAFE_BOTTOM, SAFE_TOP, H, W
 from ..ui import layout
 from ..ui.gesture import inside
 from ..ui.layout import CARD_H, CARD_W
 from .base import Button, Menu, QScene
 
 COLS = 4
-CELL_W, CELL_H = CARD_W, CARD_H  # Cards at 1x: scaled pixel text does not read.
-GRID_Y = 70
+CELL_W, CELL_H = CARD_W, CARD_H  # Cards at 1x: scaled 1-bit text does not read.
+GRID_Y = SAFE_TOP + 84
+GAP = 12
+VIEW_BOTTOM = H - SAFE_BOTTOM - 96  # Above the Close button.
 
 
 def cell_rect(i: int, scroll: int) -> tuple:
     row, col = divmod(i, COLS)
-    x0 = (320 - COLS * CELL_W - (COLS - 1) * 6) // 2
-    return (x0 + col * (CELL_W + 6), GRID_Y + row * (CELL_H + 8) - scroll, CELL_W, CELL_H)
+    x0 = (W - COLS * CELL_W - (COLS - 1) * GAP) // 2
+    return (x0 + col * (CELL_W + GAP), GRID_Y + row * (CELL_H + GAP) - scroll, CELL_W, CELL_H)
 
 
 class DeckScene(QScene):
@@ -37,7 +40,7 @@ class DeckScene(QScene):
 
     def max_scroll(self) -> int:
         rows = (len(self.uids) + COLS - 1) // COLS
-        return max(0, GRID_Y + rows * (CELL_H + 8) - 600)
+        return max(0, GRID_Y + rows * (CELL_H + GAP) - VIEW_BOTTOM)
 
     def tick(self, game, inp, gestures):
         if self.inspect is not None:
@@ -47,14 +50,14 @@ class DeckScene(QScene):
         for g in gestures:
             if g.kind == "drag":
                 self.scroll = max(0, min(self.max_scroll(), self.scroll - g.dy))
-            if g.kind == "tap" and g.y < 620:
+            if g.kind == "tap" and g.y < VIEW_BOTTOM:
                 for i, uid in enumerate(self.uids):
                     if inside(g.x, g.y, cell_rect(i, self.scroll)):
                         self.inspect = uid
         if inp.nav(1 << 1):
-            self.scroll = min(self.max_scroll(), self.scroll + 40)
+            self.scroll = min(self.max_scroll(), self.scroll + CELL_H // 2)
         if inp.nav(1 << 0):
-            self.scroll = max(0, self.scroll - 40)
+            self.scroll = max(0, self.scroll - CELL_H // 2)
         self.menu.set([Button(layout.bottom_buttons(1)[0], "Close", "close")])
         if self.menu.update(inp, gestures) == "close" or self.back(inp):
             game.pop(self)

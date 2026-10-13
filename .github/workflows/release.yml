@@ -82,7 +82,7 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/release/* \
             --repo "$GITHUB_REPOSITORY" \
             --title "Queen $GITHUB_REF_NAME" \
-            --prerelease \
+            --latest \
             --notes "Vertical slice build: the Sovereign scenario with Rook, the Kinetic Hunter. Android APK only (debug-signed; portrait, touch). Install it on a phone with unknown sources allowed. See README.md."
 
       # Keep one release on the page (docs/repo/release.md): delete every older release and its files. The tags stay,

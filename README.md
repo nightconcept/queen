@@ -7,7 +7,7 @@ alien hive-ship *Sovereign* to kill its Queen before she wakes.
   Highcard's d6 dice through your equipped weapon, and you can see the odds before you commit.
 - **The run** plays like an Arkham Horror LCG scenario: explore a hive of eight locations, find clues to
   advance the Act, and race the Agenda's entropy clock. Story cards, a chaos bag, and three endings.
-- **Phones first**: portrait 320x714 pixels (4x on a Pixel 10 Pro). Drag cards onto enemies, and hold to
+- **Phones first**: portrait 540x1170 pixels (2x on a 1080x2340 flagship). Drag cards onto enemies, and hold to
   inspect anything.
 
 It runs on [NightEngine](https://github.com/nightconcept/NightEngine) (Pyxel).
@@ -38,4 +38,4 @@ The Android APK is on the [releases page](https://github.com/nightconcept/queen/
 See [AGENTS.md](AGENTS.md) for the layout and the rules, and [the GDD](docs/design/GDD.md) for the design.
 `just check`, `just lint`, `just dev scene=battle enemies=QUEEN`.
 
-Art: CC0 packs by OneBitPudding, ansimuz and Kenney ([sources](assets/art/README.md)). Font: Pixel Operator by Jayvee Enaguas (CC0).
+Art: CC0 packs by OneBitPudding, ansimuz and Kenney ([sources](assets/art/README.md)). Font: Atkinson Hyperlegible by the Braille Institute (SIL OFL 1.1).

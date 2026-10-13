@@ -5,8 +5,9 @@ description: Ship a new Queen build. Bumps the patch version, runs the checks, c
 
 # Release a Queen build
 
-A `v*` tag builds the Android APK on GitHub Actions (`.github/workflows/release.yml`), publishes the
-release, and deletes every older release, so the newest build is the only one on the page. The tags are
+A `v*` tag builds the Android APK on GitHub Actions (`.github/workflows/release.yml`), publishes it as a
+normal release marked Latest (never a pre-release), and deletes every older release, so the newest build is the
+only one on the page. The tags are
 kept. [Releases](../../../docs/repo/release.md) has the details.
 
 The user asked for a build, so push without asking again. Stop and report if a check fails.
@@ -24,15 +25,17 @@ The user asked for a build, so push without asking again. Stop and report if a c
 
    ```sh
    git commit -am "chore: release v<version>"
-   git tag v<version>
+   git tag -m "Queen v<version>" v<version>
    git push origin main v<version>
    ```
 
-   End the commit message with the attribution lines the session asks for.
+   End the commit message with the attribution lines the session asks for. The tag needs `-m`: this repo's git
+   config refuses a tag with no message ("no tag message?").
 6. **Watch the build.** Find the run with
    `gh run list --workflow release.yml --limit 1 --json databaseId,status,headBranch`, then
    `gh run watch <id> --exit-status`. It takes about 5 to 10 minutes.
-7. **Confirm.** `gh release list` must show only `v<version>`, and
+7. **Confirm.** `gh release list` must show only `v<version>`, marked `Latest` (not `Pre-release`;
+   if it is one, fix it with `gh release edit v<version> --prerelease=false --latest`), and
    `gh release view v<version> --json assets --jq '.assets[].name'` must list
    `queen-<version>-android.apk` and `SHA256SUMS`. Give the user the release URL
    (`gh release view v<version> --json url --jq .url`).

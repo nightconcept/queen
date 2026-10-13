@@ -8,15 +8,16 @@ Queen is a single-player deckbuilder prototype of the Highcard theme (`../highca
 Battles follow Slay the Spire with Highcard's dice and weapons and Marvel Snap's card feel. The run follows
 Arkham Horror LCG: an act/agenda race across a small location map, a chaos bag, story cards, and a campaign
 log. One Kinetic Hunter, Rook, hunts the alien Queen in the hive-ship Sovereign.
-The game runs on NightEngine (Pyxel only). Portrait 320x714 is the only screen size: an exact 4x on the
-target phone, the Pixel 10 Pro (1280x2856). Test every visual change at that size.
+The game runs on NightEngine (Pyxel only). Portrait 540x1170 is the only screen size: an exact 2x on the
+first-class phone, the smallest flagship screen (1080x2340), with the camera cutout kept clear. Test every visual
+change at that size.
 
 ## Stack
 
 - Python 3.11+ (venv 3.14), Pyxel 2.9.9 through the NightEngine submodule at `nightengine/` (main branch).
 - `uv`, `just`, `ruff`, `unittest`. Node + Playwright for the browser checks. JDK 17 (mise) and the Android SDK
   for the APK.
-- Art: CC0 packs (OneBitPudding, ansimuz, Kenney), imported by `tools/import_art.py`. Font: Pixel Operator (CC0), `tools/import_font.py`.
+- Art: CC0 packs (OneBitPudding, ansimuz, Kenney), imported by `tools/import_art.py`. Font: Atkinson Hyperlegible (OFL), `tools/import_font.py`.
 
 ## Essential Commands
 
@@ -27,7 +28,7 @@ The public recipes are NightEngine's standard surface ([Game commands](nightengi
 - **Agent entry point**: `just dev scene=battle enemies=HUSK+DRONE` (keys in `queen/scenes/dev.py`)
 - **Test**: `just check` (under a second); `just check web` runs Playwright in Chromium
 - **Lint / Format**: `just lint` / `just fmt`
-- **Pictures**: `just _shots out/shots "dev:scene=map,wait:300,shot:map"` (headless, 320x714)
+- **Pictures**: `just _shots out/shots "dev:scene=map,wait:300,shot:map"` (headless, 540x1170)
 - **Recordings**: `just autoplay --seed 4`, `just replay FILE`, `just frames FILE`; balance: `just _sim 20`
 - **APK**: `just build android` (only Android ships for now). To publish a build, use the `release` skill.
 

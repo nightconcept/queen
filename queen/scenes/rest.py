@@ -1,11 +1,12 @@
 """A rest (GDD 8.2, 13.2): heal or recover nerve, then spend XP on upgrades."""
 
+from ..config import W
 from ..rules import explore, rewards
 from ..ui import layout
 from .base import Button, Menu, QScene
 
-LIST_Y = 250
-ROW_H = 30
+LIST_Y = 380
+ROW_H = 48
 
 
 class Rest(QScene):
@@ -25,17 +26,18 @@ class Rest(QScene):
         out = []
         if not self.rested:
             heal = int(run.max_hp * 0.3)
-            r1, r2 = layout.button_grid(2, 150, h=44)
+            r1, r2 = layout.button_grid(2, 240, h=72)
             out.append(Button(r1, "Patch up", "heal", note=f"+{heal} health", style="primary"))
             out.append(Button(r2, "Steady", "nerve", note="+2 nerve", style="primary"))
         opts = self.options(game)
         visible = opts[self.scroll : self.scroll + 10]
         for i, o in enumerate(visible):
-            rect = (12, LIST_Y + i * (ROW_H + 4), 296, ROW_H)
+            rect = (20, LIST_Y + i * (ROW_H + 6), W - 40, ROW_H)
             out.append(Button(rect, o["label"], o, enabled=o["cost"] <= run.xp, note=f"{o['cost']} XP"))
         if len(opts) > 10:
-            out.append(Button((12, LIST_Y + 10 * (ROW_H + 4), 144, 28), "Up", "up", style="ghost"))
-            out.append(Button((164, LIST_Y + 10 * (ROW_H + 4), 144, 28), "Down", "down", style="ghost"))
+            y = LIST_Y + 10 * (ROW_H + 6)
+            out.append(Button((20, y, (W - 50) // 2, 44), "Up", "up", style="ghost"))
+            out.append(Button((30 + (W - 50) // 2, y, (W - 50) // 2, 44), "Down", "down", style="ghost"))
         out.append(Button(layout.bottom_buttons(1)[0], "Move on", "done", style="normal"))
         return out
 

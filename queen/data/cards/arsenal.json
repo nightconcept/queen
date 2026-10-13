@@ -1,0 +1,110 @@
+{
+ "_doc": "Guns written for Queen (GDD 10.3). A gun costs 0 to equip unless its power earns a cost. Its `effects` are Equip ops, run once when it is equipped; `weapon.special` changes its rolls; `hooks` react while it is equipped.",
+ "SNUB_NOSE": {
+  "name": "Snub Nose",
+  "upgrades_to": "HIVE_SPLITTER",
+  "set": "QUEEN",
+  "element": "K",
+  "tier": "S",
+  "type": "weapon",
+  "subtype": "Revolver",
+  "cost": 0,
+  "target": "enemy",
+  "icons": [
+   "agility"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "Equip: Fire. +0 dice. 3 damage per hit.",
+  "effects": [
+   {
+    "op": "fire"
+   }
+  ],
+  "weapon": {
+   "dice": 0,
+   "hit": 5,
+   "damage": 3,
+   "durability": 4
+  },
+  "plus": {
+   "text": "Equip: Fire. +0 dice. 4 damage per hit.",
+   "weapon": {
+    "dice": 0,
+    "hit": 5,
+    "damage": 4,
+    "durability": 4
+   }
+  }
+ },
+ "SCOUT_CARBINE": {
+  "name": "Scout Carbine",
+  "face": "Carbine",
+  "set": "QUEEN",
+  "element": "K",
+  "tier": "S",
+  "type": "weapon",
+  "subtype": "AR",
+  "cost": 0,
+  "target": "none",
+  "icons": [
+   "intellect"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "Equip: draw 2. +1 die. 2 damage per hit.",
+  "effects": [
+   {
+    "op": "draw",
+    "n": 2
+   }
+  ],
+  "weapon": {
+   "dice": 1,
+   "hit": 5,
+   "damage": 2,
+   "durability": 5
+  },
+  "plus": {
+   "text": "Equip: draw 2. +1 die. 3 damage per hit.",
+   "weapon": {
+    "dice": 1,
+    "hit": 5,
+    "damage": 3,
+    "durability": 5
+   }
+  }
+ },
+ "HIVE_SPLITTER": {
+  "name": "Hive Splitter",
+  "face": "Splitter",
+  "set": "QUEEN",
+  "element": "K",
+  "tier": "P",
+  "type": "weapon",
+  "subtype": "Shotgun",
+  "cost": 2,
+  "target": "enemy",
+  "icons": [
+   "combat"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "Equip: Fire. +3 dice. Rolls of 4 count as hits. Crit. 3 damage per hit.",
+  "effects": [
+   {
+    "op": "fire"
+   }
+  ],
+  "weapon": {
+   "dice": 3,
+   "hit": 4,
+   "damage": 3,
+   "crit": true,
+   "durability": 3
+  },
+  "plus": {
+   "cost": 1
+  }
+ }
+}

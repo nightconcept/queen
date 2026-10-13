@@ -1,10 +1,12 @@
-"""Convert the Pixel Operator TTFs (CC0, Jayvee Enaguas) to the BDF files the game loads.
+"""Convert the Atkinson Hyperlegible TTFs (SIL OFL 1.1, Braille Institute) to the BDF files the game loads.
 
     uv run --with pillow python -I tools/import_font.py FONT_DIR
 
-FONT_DIR holds the unzipped Pixel Operator release (https://www.dafont.com/pixel-operator.font). Each face is drawn
-at its design size, so every pixel is a whole pixel, then the rows that no ASCII glyph uses are cut from the top
-and the bottom. The game (and `queen/ui/layout.py`, which reads the advance widths without pyxel) loads the BDFs.
+FONT_DIR holds AtkinsonHyperlegible-Regular.ttf, AtkinsonHyperlegible-Bold.ttf and OFL.txt
+(https://github.com/google/fonts/tree/main/ofl/atkinsonhyperlegible). Each face is drawn at its pixel size with no
+anti-aliasing (the screen is 2x on the phone, so 1-bit edges are fine), then the rows that no ASCII glyph uses are
+cut from the top and the bottom. The game (and `queen/ui/layout.py`, which reads the advance widths and line heights
+without pyxel) loads the BDFs. Pyxel takes glyphs at most 32 px wide.
 """
 
 import shutil
@@ -14,16 +16,17 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "assets" / "fonts" / "pixel-operator"
+OUT = ROOT / "assets" / "fonts" / "atkinson"
 
-# BDF name: (TTF, design size in px). The keys match FONTS in queen/ui/layout.py.
+# BDF name: (TTF, size in px). The keys match FONTS in queen/ui/layout.py.
 FACES = {
-    "s": ("PixelOperator8.ttf", 8),
-    "m": ("PixelOperator.ttf", 16),
-    "l": ("PixelOperator-Bold.ttf", 16),
-    "xl": ("PixelOperator-Bold.ttf", 32),
+    "s": ("AtkinsonHyperlegible-Regular.ttf", 17),
+    "m": ("AtkinsonHyperlegible-Regular.ttf", 20),
+    "l": ("AtkinsonHyperlegible-Bold.ttf", 20),
+    "xl": ("AtkinsonHyperlegible-Bold.ttf", 30),
 }
 CHARS = [chr(c) for c in range(32, 127)]
+MAX_W = 32
 
 
 def convert(ttf: Path, size: int, name: str) -> str:
@@ -43,6 +46,8 @@ def convert(ttf: Path, size: int, name: str) -> str:
     h = bottom - top
     base = ascent - top  # Rows above the baseline after the cut.
     widths = {ch: _ink_w(img, size, top, bottom) for ch, (_, img) in glyphs.items()}
+    if max(widths.values()) > MAX_W:
+        raise SystemExit(f"{name}: a glyph is {max(widths.values())} px wide; pyxel takes {MAX_W}")
     out = [
         "STARTFONT 2.1",
         f"FONT -queen-{name}",
@@ -85,7 +90,7 @@ def main(src: Path):
     OUT.mkdir(parents=True, exist_ok=True)
     for name, (ttf, size) in FACES.items():
         (OUT / f"{name}.bdf").write_text(convert(src / ttf, size, name))
-    shutil.copy(src / "LICENSE.txt", OUT / "LICENSE")
+    shutil.copy(src / "OFL.txt", OUT / "OFL.txt")
     print(f"wrote {len(FACES)} fonts to {OUT.relative_to(ROOT)}")
 
 

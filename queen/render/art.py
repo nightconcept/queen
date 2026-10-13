@@ -10,6 +10,8 @@ from ..ui.layout import (
     FONT_DIR,
     FONTS,
     clip,  # noqa: F401  (for the screens)
+    font_h,
+    line_h,  # noqa: F401  (for the screens)
 )
 from ..ui.layout import text_w as _text_w
 
@@ -63,11 +65,11 @@ def right(rx, y, s, col="bone", font="m", shadow: str | None = "void"):
 
 
 def big(cx, y, s, col="bone", scale=1, shadow="void"):
-    """Large text: the 12x24 font, optionally drawn bigger by scaling a scratch image."""
+    """Large text: the heading font, optionally drawn bigger by scaling a scratch image."""
     if scale == 1:
         center(cx, y, s, col, "xl", shadow)
         return
-    w, h = text_w(s, "xl") + 2, 28
+    w, h = text_w(s, "xl") + 2, font_h("xl") + 2
     img = pyxel.Image(w, h)
     img.cls(KEY)
     img.text(1, 1, s, C(shadow), FONT["xl"])
@@ -99,13 +101,21 @@ def sprite(name: str, frame: int, cx, feet_y, scale=1.0, flip=False, white=False
         pyxel.pal()
 
 
-def icon(name: str, x, y, scale=1.0):
+def icon(name: str, x, y, scale=1):
+    """A 16x16 icon with its top-left at (x, y), drawn `scale` times bigger."""
     img, u = ICONS[name]
-    pyxel.blt(x, y, img, u, 0, 16, 16, KEY, scale=scale)
+    off = 8 * (scale - 1)  # pyxel scales about the centre of the source rect.
+    pyxel.blt(x + off, y + off, img, u, 0, 16, 16, KEY, scale=scale)
 
 
-def background(name: str, x, y, w, h, sx=0, sy=0):
-    pyxel.blt(x, y, BG[name], sx, sy, w, h)
+def background(name: str, x, y, w, h, sx=0, sy=0, scale=2):
+    """The screen rect (x, y, w, h) filled from a background image at (sx, sy), its pixels drawn `scale` times bigger
+    (the art is low resolution, as the sprites are). The source is kept inside the image."""
+    img = BG[name]
+    sw, sh = w / scale, h / scale
+    sx = max(0, min(img.width - sw, sx))
+    sy = max(0, min(img.height - sh, sy))
+    pyxel.blt(x + (w - sw) / 2, y + (h - sh) / 2, img, sx, sy, sw, sh, scale=scale)
 
 
 def dim(x, y, w, h, alpha=0.5, col="void"):
@@ -117,7 +127,7 @@ def dim(x, y, w, h, alpha=0.5, col="void"):
 # --- Panels and buttons
 
 
-def panel(x, y, w, h, fill="panel", border="line", radius=3):
+def panel(x, y, w, h, fill="panel", border="line", radius=4):
     x, y, w, h = int(x), int(y), int(w), int(h)
     r = radius
     pyxel.rect(x + r, y, w - 2 * r, h, C(fill))
@@ -158,14 +168,15 @@ def button(b, focused=False, pressed=False):
     panel(x, y + oy, w, h, fill=fill, border="white" if focused else border)
     shadow = None if b.style == "primary" else "void"
     note_ink = ink if b.style == "primary" else "ash"
-    if b.note and h < 36:  # A short row: the label on the left, the note on the right.
-        text(x + 10, y + oy + (h - 13) // 2, clip(b.label, w - 30 - text_w(b.note)), ink, "m", shadow)
-        right(x + w - 10, y + oy + (h - 13) // 2, b.note, note_ink, "m", None)
+    fh = font_h("m")
+    if b.note and h < 2 * fh + 12:  # A short row: the label on the left, the note on the right.
+        text(x + 14, y + oy + (h - fh) // 2, clip(b.label, w - 40 - text_w(b.note)), ink, "m", shadow)
+        right(x + w - 14, y + oy + (h - fh) // 2, b.note, note_ink, "m", None)
     elif b.note:
-        center(x + w // 2, y + oy + h // 2 - 13, b.label, ink, "m", shadow)
-        center(x + w // 2, y + oy + h // 2 + 1, b.note, note_ink, "m", None)
+        center(x + w // 2, y + oy + h // 2 - fh - 1, b.label, ink, "m", shadow)
+        center(x + w // 2, y + oy + h // 2 + 2, b.note, note_ink, "m", None)
     else:
-        center(x + w // 2, y + oy + (h - 13) // 2, b.label, ink, "m", shadow)
+        center(x + w // 2, y + oy + (h - fh) // 2, clip(b.label, w - 16), ink, "m", shadow)
 
 
 def menu(m):
@@ -195,4 +206,4 @@ def orb(cx, cy, r, col, value: str, font="l"):
     pyxel.circ(cx, cy, r + 1, C("void"))
     pyxel.circ(cx, cy, r, C(col))
     pyxel.circ(cx - r // 3, cy - r // 3, max(1, r // 3), C("white"))
-    center(cx, cy - FONTS[font] // 2 + 1, value, "void", font, None)
+    center(cx, cy - font_h(font) // 2 + 1, value, "void", font, None)

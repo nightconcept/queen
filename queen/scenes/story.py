@@ -46,7 +46,7 @@ class StoryScene(QScene):
     def choices(self, game) -> list[Button]:
         run = game.run
         opts = explore.story_choices(run, self.step) if run else [{"index": 0, "label": "Continue", "test": None}]
-        rects = layout.bottom_buttons(len(opts), h=40)
+        rects = layout.bottom_buttons(len(opts))
         out = []
         for r, o in zip(rects, opts, strict=True):
             note = ""

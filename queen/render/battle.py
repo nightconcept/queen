@@ -4,7 +4,7 @@ import math
 
 import pyxel
 
-from ..config import SAFE_TOP, H, W
+from ..config import SAFE_BOTTOM, SAFE_TOP, H, W
 from ..content import CONTENT
 from ..rules import explore
 from ..ui import layout
@@ -41,20 +41,21 @@ def draw(scene, game, t):
     if scene.battle.over and not scene.busy:
         art.dim(0, 0, W, H, 0.6)
         result = "VICTORY" if scene.battle.over == "won" else "DEFEATED"
-        art.big(W // 2, 300, result, "crit" if scene.battle.over == "won" else "blood", scale=2)
+        art.big(W // 2, 440, result, "crit" if scene.battle.over == "won" else "blood", scale=2)
         if scene.battle.clues and scene.battle.over == "won":
-            center(W // 2, 360, f"+{scene.battle.clues} clue", "clue", "l")
+            center(W // 2, 530, f"+{scene.battle.clues} clue", "clue", "l")
         art.menu(scene.menu)
 
 
 def backdrop(t):
     # The hive (OneBitPudding's background), cropped to the portrait battlefield.
-    art.background("hive", 0, 0, W, 300, 240, 120)
-    art.dim(0, 0, W, 300, 0.5)  # Push the busy hive back so the creatures' outlines read.
-    pyxel.rect(0, 300, W, H - 300, C("ink"))
+    floor = layout.FEET_Y + 60
+    art.background("hive", 0, 0, W, floor, 260, 0)
+    art.dim(0, 0, W, floor, 0.5)  # Push the busy hive back so the creatures' outlines read.
+    pyxel.rect(0, floor, W, H - floor, C("ink"))
     for i in range(6):  # A fleshy floor that fades into the dark.
         pyxel.dither(0.9 - i * 0.14)
-        pyxel.rect(0, 286 + i * 8, W, 8, C("panel"))
+        pyxel.rect(0, floor - 24 + i * 12, W, 12, C("panel"))
     pyxel.dither(1.0)
     pyxel.line(0, PLAY_LINE, W, PLAY_LINE, C("panel_hi"))
 
@@ -80,9 +81,11 @@ def foes(scene, t):
         and (scene.battle.hand[scene.lifted].card.target == "enemy")
         and (scene.drag or scene.target_mode)
     )
-    for f, x in foe_layout(scene):
+    shown = foe_layout(scene)
+    for f, x in shown:
         rec = CONTENT.enemies[f["id"]]
         spr = art.SPRITES[rec.art]
+        scale = layout.foe_scale(rec, len(shown))
         anim, start = scene.anim.get(f["uid"], ("idle", 0))
         age = t - start
         white = anim == "hit" and age < 6
@@ -95,58 +98,52 @@ def foes(scene, t):
             frame = art.frame_of(rec.art, "hatch", age, 3, loop=False)
         else:
             frame = art.frame_of(rec.art, "idle", t + f["uid"] * 7, 9)
-        lunge = -int(math.sin(min(age, 16) / 16 * math.pi) * 10) if anim == "attack" and age < 16 else 0
+        lunge = -int(math.sin(min(age, 16) / 16 * math.pi) * 16) if anim == "attack" and age < 16 else 0
         flip = rec.art in ("husk",)
         if f["uid"] == hover_uid:
             pyxel.dither(0.5)
-            pyxel.elli(
-                x - spr["w"] * layout.foe_scale(rec) / 2,
-                layout.FEET_Y - 8,
-                spr["w"] * layout.foe_scale(rec),
-                14,
-                C("crit"),
-            )
+            pyxel.elli(x - spr["w"] * scale / 2, layout.FEET_Y - 12, spr["w"] * scale, 22, C("crit"))
             pyxel.dither(1.0)
-        art.sprite(rec.art, frame, x + dx, layout.FEET_Y + lunge, scale=layout.foe_scale(rec), flip=flip, white=white)
+        art.sprite(rec.art, frame, x + dx, layout.FEET_Y + lunge, scale=scale, flip=flip, white=white)
         if not f["alive"]:
             continue
-        h = spr["h"] * layout.foe_scale(rec)
-        bw = max(44, min(72, int(spr["w"] * layout.foe_scale(rec) * 0.8)))
+        h = spr["h"] * scale
+        bw = max(72, min(120, int(spr["w"] * scale * 0.7), W // len(shown) - 16))
         by = layout.HP_BAR_Y
         ghost = 0
         if f["uid"] == hover_uid:
             p = scene.preview()
             if p:
                 ghost = max(0, int(p["expected"]) - f["shields"])
-        art.bar(x - bw // 2, by, bw, 7, f["hp"], f["max_hp"], ghost=ghost)
-        center(x, by + 9, f"{f['hp']}/{f['max_hp']}", "bone", "m")
+        art.bar(x - bw // 2, by, bw, 12, f["hp"], f["max_hp"], ghost=ghost)
+        center(x, by + 15, f"{f['hp']}/{f['max_hp']}", "bone", "m")
         if f["shields"]:
-            pyxel.circ(x - bw // 2 - 5, by + 3, 8, C("void"))
-            pyxel.circ(x - bw // 2 - 5, by + 3, 7, C("shield"))
-            center(x - bw // 2 - 4, by - 3, str(f["shields"]), "void", "l", None)
-        statuses(f["statuses"], x, by + 24, centre=True)
-        intent(f.get("intent"), x, layout.FEET_Y - h - 18, t)
+            pyxel.circ(x - bw // 2 - 8, by + 6, 13, C("void"))
+            pyxel.circ(x - bw // 2 - 8, by + 6, 12, C("shield"))
+            center(x - bw // 2 - 7, by + 6 - art.font_h("l") // 2, str(f["shields"]), "void", "l", None)
+        statuses(f["statuses"], x, by + 40, centre=True)
+        intent(f.get("intent"), x, layout.FEET_Y - h - 30, t)
         if targeting and scene.battle.targetable(next(o for o in scene.battle.foes if o.uid == f["uid"])):
             if (t // 15) % 2 == 0 and f["uid"] != hover_uid:
-                pyxel.rectb(x - 22, layout.FEET_Y - h - 2, 44, h + 4, C("line"))
+                pyxel.rectb(x - 36, layout.FEET_Y - h - 4, 72, h + 8, C("line"))
 
 
 def statuses(st: dict, x, y, centre=False):
     """Status chips: a short name and the stack, in the body font. Tap the owner to read them in full."""
     chips = [(CONTENT.statuses[sid].colour, f"{STATUS_ABBR.get(sid, sid[:2])}{n}") for sid, n in sorted(st.items())]
-    widths = [art.text_w(label, "l") + 5 for _, label in chips]
-    cx = x - (sum(widths) + 2 * (len(chips) - 1)) // 2 if centre else x
+    widths = [art.text_w(label, "l") + 10 for _, label in chips]
+    cx = x - (sum(widths) + 4 * (len(chips) - 1)) // 2 if centre else x
     for (col, label), w in zip(chips, widths, strict=True):
-        pyxel.rect(cx, y, w, 13, C(col))
-        text(cx + 3, y, label, "void", "l", None)
-        cx += w + 2
+        art.panel(cx, y, w, 24, fill=col, border=None, radius=3)
+        text(cx + 5, y + 3, label, "void", "l", None)
+        cx += w + 4
 
 
 def intent(view, x, y, t):
     if not view:
         return
     icon_name, col = INTENT_ICON.get(view["kind"], ("question", "ash"))
-    bob = int(math.sin(t / 10) * 2)
+    bob = int(math.sin(t / 10) * 3)
     label = ""
     if view["kind"] == "attack" and "damage" in view:
         label = f"{view['damage']}" + (f"x{view['times']}" if view.get("times", 1) > 1 else "")
@@ -154,11 +151,11 @@ def intent(view, x, y, t):
         label = f"{view.get('horror', '')}" + (f"+{view['damage']}" if view.get("damage") else "")
     elif view["kind"] == "defend":
         label = str(view.get("shield", ""))
-    w = 22 + art.text_w(label, "l")
-    art.panel(x - w // 2, y - 2 + bob, w, 18, fill="void", border=col)
-    art.icon(icon_name, x - w // 2 + 2, y - 1 + bob)
+    w = 32 + (art.text_w(label, "l") + 6 if label else 0)
+    art.panel(x - w // 2, y - 6 + bob, w, 30, fill="void", border=col)
+    art.icon(icon_name, x - w // 2 + 8, y + bob)
     if label:
-        text(x - w // 2 + 19, y + 1 + bob, label, col, "l", None)
+        text(x - w // 2 + 30, y + bob - 1, label, col, "l", None)
 
 
 def hero(scene, t):
@@ -172,18 +169,20 @@ def hero(scene, t):
         frame = art.frame_of("rook", "hit", 0)
     else:
         frame = art.frame_of("rook", "idle", t, 10)
-    art.sprite("rook", frame, hx, fy, scale=2, white=anim == "hit" and age < 4)
+    art.sprite("rook", frame, hx, fy, scale=3, white=anim == "hit" and age < 4)
     # Health, shields, nerve and statuses beside Rook.
-    x0 = 98
-    text(x0, 382, "ROOK", "rook", "l")
-    art.bar(x0, 398, 56, 8, v["hp"], v["max_hp"])
-    text(x0, 408, f"{v['hp']}/{v['max_hp']}", "bone", "m")
+    x0, y0 = layout.HERO_INFO
+    text(x0, y0, "ROOK", "rook", "l")
+    art.icon("heart", x0, y0 + 26)
+    art.bar(x0 + 22, y0 + 28, 150, 12, v["hp"], v["max_hp"])
+    text(x0 + 180, y0 + 25, f"{v['hp']}/{v['max_hp']}", "bone", "m")
     if v["shields"]:  # The shield badge sits on the health bar's left end, as in StS.
-        pyxel.circ(x0 - 2, 402, 9, C("void"))
-        pyxel.circ(x0 - 2, 402, 8, C("shield"))
-        center(x0 - 1, 396, str(v["shields"]), "void", "l", None)
-    art.pips(x0, 424, v["nerve"], v["max_nerve"], col="horror", size=5)
-    statuses(v["statuses"], x0, 434)
+        pyxel.circ(x0 + 18, y0 + 34, 14, C("void"))
+        pyxel.circ(x0 + 18, y0 + 34, 13, C("shield"))
+        center(x0 + 19, y0 + 34 - art.font_h("l") // 2, str(v["shields"]), "void", "l", None)
+    art.icon("eye", x0, y0 + 50)
+    art.pips(x0 + 22, y0 + 54, v["nerve"], v["max_nerve"], col="horror", size=9, gap=3)
+    statuses(v["statuses"], x0, y0 + 74)
     weapon_box(scene)
 
 
@@ -195,31 +194,32 @@ def weapon_box(scene):
         inst = scene.card(wv["uid"])
         card = inst.card
         ws = card.weapon
-        art.icon("gun", x + 4, y + 4)
-        name = card.name if art.text_w(card.name, "l") <= w - 26 else (card.face or card.name)
-        text(x + 22, y + 5, clip(name, w - 26, "l"), "rook", "l", None)
-        text(x + 6, y + 20, f"{scene.battle.combat + ws.dice}d6  hit {ws.hit}+  {ws.damage}/hit", "bone", "m", None)
-        art.pips(x + 6, y + 38, wv["durability"] or 0, ws.durability, col="rook", size=6)
-        art.right(x + w - 6, y + 35, "AMMO", "ash", "m", None)
+        art.icon("gun", x + 10, y + 10)
+        name = card.name if art.text_w(card.name, "l") <= w - 44 else (card.face or card.name)
+        text(x + 34, y + 9, clip(name, w - 44, "l"), "rook", "l", None)
+        text(x + 10, y + 33, f"{scene.battle.combat + ws.dice}d6   hit {ws.hit}+   {ws.damage}/hit", "bone", "m", None)
+        art.pips(x + 10, y + 63, wv["durability"] or 0, ws.durability, col="rook", size=10, gap=4)
+        art.right(x + w - 10, y + 59, "AMMO", "ash", "s", None)
     else:
         b = CONTENT.rules.bare_hands
-        text(x + 6, y + 5, "Bare Hands", "ash", "l", None)
-        text(x + 6, y + 20, f"{scene.battle.combat + b.dice}d6  hit {b.hit}+  {b.damage}/hit", "ash", "m", None)
-    gx = 160
+        text(x + 10, y + 9, "Bare Hands", "ash", "l", None)
+        text(x + 10, y + 33, f"{scene.battle.combat + b.dice}d6   hit {b.hit}+   {b.damage}/hit", "ash", "m", None)
+    gx = x
+    gw = (w - 8) // 2
     for uid in scene.view["auras"]:
-        art.panel(gx, layout.GEAR_ROW_Y, 74, 17, fill="ink", border="horror")
-        text(gx + 4, layout.GEAR_ROW_Y + 2, clip(scene.card(uid).card.name, 66), "horror", "m", None)
-        gx += 78
+        art.panel(gx, layout.GEAR_ROW_Y, gw, 28, fill="ink", border="horror")
+        text(gx + 8, layout.GEAR_ROW_Y + 4, clip(scene.card(uid).card.name, gw - 16), "horror", "m", None)
+        gx += gw + 8
     for e in scene.view["equipment"]:
-        art.panel(gx, layout.GEAR_ROW_Y, 74, 17, fill="ink", border="shield")
+        art.panel(gx, layout.GEAR_ROW_Y, gw, 28, fill="ink", border="shield")
         n = f" {e['uses']}"
-        name = clip(scene.card(e["uid"]).card.name, 66 - art.text_w(n))
-        text(gx + 4, layout.GEAR_ROW_Y + 2, name + n, "shield", "m", None)
-        gx += 78
+        name = clip(scene.card(e["uid"]).card.name, gw - 16 - art.text_w(n))
+        text(gx + 8, layout.GEAR_ROW_Y + 4, name + n, "shield", "m", None)
+        gx += gw + 8
 
 
-DIE = 19  # The die's side in px. Pips are 3x3 on a 3-step grid.
-THROW_FROM = (64, 400)  # Rook's hand: the dice fly from here into the tray.
+DIE = layout.DIE  # The die's side in px. Pips are 6x6 on a 3-step grid.
+THROW_FROM = (120, 720)  # Rook's hand: the dice fly from here into the tray.
 _die_img: dict[tuple, pyxel.Image] = {}
 
 
@@ -232,7 +232,7 @@ def dice(scene, t):
         return
     faces = d["faces"]
     n = len(faces)
-    gap = 5
+    gap = 8 if n <= 10 else 2
     x0 = W // 2 - (n * DIE + (n - 1) * gap) // 2
     age = d["t"]
     rerolled = {r[0] for r in d["rerolled"]}
@@ -244,7 +244,7 @@ def dice(scene, t):
             ease = 1 - (1 - p) ** 3
             x = THROW_FROM[0] + (fx - THROW_FROM[0]) * ease
             y = THROW_FROM[1] + (fy - THROW_FROM[1]) * ease
-            y -= 34 * (1 - p) ** 1.5 * abs(math.sin(p * math.pi * 3))  # Three bounces, each lower.
+            y -= 60 * (1 - p) ** 1.5 * abs(math.sin(p * math.pi * 3))  # Three bounces, each lower.
             rot = (1 - p) ** 2 * (600 if i % 2 else -540)
             beat = 2 + int(p * 7)  # The face flickers fast, then slows as the die tires.
             shown = 1 + (age // beat * 5 + i * 3 + (age // beat) ** 2) % 6
@@ -254,21 +254,21 @@ def dice(scene, t):
         hit = face >= d["hit"]
         crit = hit and d["crit"] and face == 6
         col = "crit" if crit else ("bone" if hit else "panel_hi")
-        drop = 2 if since < 3 else 0  # A small thud as it lands.
+        drop = 3 if since < 3 else 0  # A small thud as it lands.
         die(fx, fy + drop, face, col)
         if since < 5:  # Dust.
             for k in (-1, 1):
-                pyxel.pset(fx + DIE // 2 + k * (DIE // 2 + 2 + since), fy + DIE - 1 - since // 2, C("ash"))
+                pyxel.rect(fx + DIE // 2 + k * (DIE // 2 + 3 + 2 * since), fy + DIE - 2 - since, 2, 2, C("ash"))
         if hit and since < 10:
             r = 2 + since
             pyxel.rectb(fx - r, fy - r, DIE + 2 * r, DIE + 2 * r, C("crit" if crit else "white"))
         if i in rerolled:
-            pyxel.rectb(fx - 1, fy - 1, DIE + 2, DIE + 2, C("crit"))
+            pyxel.rectb(fx - 2, fy - 2, DIE + 4, DIE + 4, C("crit"))
     done = layout.die_lands(n - 1)
     if age > done + 4:
         msg = f"{d['hits']} HIT" + ("S" if d["hits"] != 1 else "")
         pop = max(0, 6 - (age - done - 4))
-        center(W // 2, layout.DICE_Y + DIE + 6 - pop, msg, "crit" if d["hits"] else "ash", "l")
+        center(W // 2, layout.DICE_Y + DIE + 10 - pop, msg, "crit" if d["hits"] else "ash", "xl")
 
 
 PIPS = {1: [(1, 1)], 2: [(0, 0), (2, 2)], 3: [(0, 0), (1, 1), (2, 2)], 4: [(0, 0), (2, 0), (0, 2), (2, 2)],
@@ -281,12 +281,15 @@ def die(x, y, face, col, rot=0.0):
     if img is None:
         img = _die_img[key] = pyxel.Image(DIE, DIE)
         img.cls(art.KEY)
-        img.rect(1, 0, DIE - 2, DIE, C("void"))
-        img.rect(0, 1, DIE, DIE - 2, C("void"))
-        img.rect(1, 1, DIE - 2, DIE - 2, C(col))
-        img.line(2, DIE - 2, DIE - 3, DIE - 2, C("ash") if col != "panel_hi" else C("line"))  # A shaded lower edge.
+        img.rect(2, 0, DIE - 4, DIE, C("void"))
+        img.rect(0, 2, DIE, DIE - 4, C("void"))
+        img.rect(1, 1, DIE - 2, DIE - 2, C("void"))
+        img.rect(3, 2, DIE - 6, DIE - 4, C(col))
+        img.rect(2, 3, DIE - 4, DIE - 6, C(col))
+        shade = C("ash") if col != "panel_hi" else C("line")
+        img.rect(3, DIE - 5, DIE - 6, 2, shade)  # A shaded lower edge.
         for px, py in PIPS[face]:
-            img.rect(3 + px * 5, 3 + py * 5, 3, 3, C("void"))
+            img.rect(6 + px * 8, 5 + py * 8, 6, 6, C("void"))
     if abs(rot) < 1:
         pyxel.blt(round(x), round(y), img, 0, 0, DIE, DIE, art.KEY)
     else:
@@ -298,10 +301,10 @@ def controls(scene, t):
     for rect, label, n in ((layout.PILE_DRAW, "DRAW", v["draw"]), (layout.PILE_DISCARD, "DISC", v["discard"])):
         x, y, w, h = rect
         art.panel(x, y, w, h, fill="ink", border="line")
-        center(x + w // 2, y + 3, label, "ash", "m", None)
-        center(x + w // 2, y + 17, str(n), "bone", "l", None)
+        center(x + w // 2, y + 6, label, "ash", "s", None)
+        center(x + w // 2, y + 28, str(n), "bone", "l", None)
     ex, ey = layout.ENERGY
-    art.orb(ex, ey, 14, "energy" if v["energy"] else "panel_hi", str(v["energy"]))
+    art.orb(ex, ey, 26, "energy" if v["energy"] else "panel_hi", str(v["energy"]), "xl")
     x, y, w, h = layout.END_TURN
     busy = scene.busy or scene.battle.over
     out_of_moves = not busy and not any(
@@ -345,7 +348,7 @@ def hand(scene, t):
             elif inst.card.target != "enemy" and scene.drag["y"] < PLAY_LINE:
                 for i in range(3):
                     pyxel.line(0, PLAY_LINE - i, W, PLAY_LINE - i, C("energy" if (t // 6 + i) % 2 else "rook"))
-                art.center(W // 2, PLAY_LINE - 16, "RELEASE TO PLAY", "energy", "m")
+                art.center(W // 2, PLAY_LINE - 30, "RELEASE TO PLAY", "energy", "l")
             target = b.foes[scene.hover] if scene.hover is not None else None
             draw_card(
                 inst.card,
@@ -380,10 +383,10 @@ def arrow(scene, s, t):
     col = C("crit" if scene.hover is not None else "bone")
     for i, (px, py) in enumerate(pts[:-1]):
         if (i + t // 4) % 2 == 0:
-            pyxel.circ(px, py, 2, col)
+            pyxel.circ(px, py, 4, col)
     px, py = pts[-1]
-    pyxel.circ(px, py, 4, col)
-    pyxel.circb(px, py, 6, col)
+    pyxel.circ(px, py, 6, col)
+    pyxel.circb(px, py, 10, col)
 
 
 def preview_tag(scene, s):
@@ -394,13 +397,14 @@ def preview_tag(scene, s):
     if p["times"] > 1:
         label += f" x{p['times']}"
     kill = f"KILL {int(p['kill'] * 100)}%" if p.get("kill") else ""
-    w = max(art.text_w(label, "l"), art.text_w(kill, "l")) + 10
-    x = max(4, min(W - w - 4, s.x - w / 2))
-    y = s.y - CARD_H * s.scale / 2 - (36 if kill else 22)
-    art.panel(x, y, w, 32 if kill else 18, fill="void", border="crit")
-    text(x + 5, y + 3, label, "crit", "l", None)
+    w = max(art.text_w(label, "l"), art.text_w(kill, "l")) + 16
+    x = max(6, min(W - w - 6, s.x - w / 2))
+    lh = art.line_h("l")
+    y = s.y - CARD_H * s.scale / 2 - (2 * lh + 18 if kill else lh + 16)
+    art.panel(x, y, w, (2 * lh if kill else lh) + 10, fill="void", border="crit")
+    text(x + 8, y + 5, label, "crit", "l", None)
     if kill:
-        text(x + 5, y + 17, kill, "blood", "l", None)
+        text(x + 8, y + 5 + lh, kill, "blood", "l", None)
 
 
 def effects(scene, t):
@@ -408,13 +412,13 @@ def effects(scene, t):
         if f["kind"] == "num":
             age = f["t"]
             pop = 1.0 + max(0, 6 - age) * 0.12 if f["big"] else 1.0
-            y = f["y"] - age * 0.6
+            y = f["y"] - age * 1.0
             if age > f["life"] - 12:
                 pyxel.dither((f["life"] - age) / 12)
             if f["big"]:
-                art.big(f["x"], y - 12, f["text"], f["col"], scale=pop)
+                art.big(f["x"], y - 14, f["text"], f["col"], scale=pop)
             else:
-                center(f["x"], y, f["text"], f["col"], "m")
+                center(f["x"], y, f["text"], f["col"], "l")
             pyxel.dither(1.0)
         elif f["kind"] == "slam":
             age = f["t"]
@@ -433,11 +437,11 @@ def banner(scene, t):
         return
     a = min(1.0, n / 10)
     pyxel.dither(a * 0.8)
-    pyxel.rect(0, 200, W, 44, C("void"))
+    pyxel.rect(0, 300, W, 64, C("void"))
     pyxel.dither(a)
-    pyxel.line(0, 200, W, 200, C(col))
-    pyxel.line(0, 243, W, 243, C(col))
-    art.big(W // 2, 210, msg, col)
+    pyxel.line(0, 300, W, 300, C(col))
+    pyxel.line(0, 363, W, 363, C(col))
+    art.big(W // 2, 318, msg, col)
     pyxel.dither(1.0)
 
 
@@ -458,45 +462,46 @@ def foe_panel(scene, foe):
     """Tap an enemy or its intent (GDD 14.3): what it will do next, in words, then its other moves and statuses."""
     rec = foe.rec
     art.dim(0, 0, W, H, 0.8)
-    x, y, w = 16, 96, W - 32
-    iw = w - 20
+    x, y, w = 20, SAFE_TOP + 40, W - 40
+    iw = w - 32
+    lh = art.line_h("m")
     view = next((f.get("intent") for f in scene.view_foes() if f["uid"] == foe.uid), None)
     lines: list[tuple[str, str, str]] = []  # (text, colour, font)
     if foe.intent is not None:
         title, body = intent_lines(foe.intent_id, foe.intent, view)
         kind = view["kind"] if view else foe.intent.kind
-        lines.append(("NEXT TURN", "ash", "m"))
+        lines.append(("NEXT TURN", "ash", "s"))
         lines.append((title, INTENT_ICON.get(kind, ("question", "ash"))[1], "l"))
         lines += [(ln, "bone", "m") for b in body for ln in wrap(b, iw, "m")]
         lines.append(("", "bone", "m"))
     hidden = view is not None and view.get("kind") == "unknown"
     others = [(iid, it) for iid, it in rec.intents.items() if iid != foe.intent_id]
     if others and not hidden:
-        lines.append(("OTHER MOVES", "ash", "m"))
+        lines.append(("OTHER MOVES", "ash", "s"))
         for iid, it in others:
             body = " ".join(effect_lines(it))
             for k, ln in enumerate(wrap(f"{iid.replace('_', ' ').title()}: {body}", iw, "m")):
                 lines.append((ln, INTENT_ICON.get(it.kind, ("question", "ash"))[1] if k == 0 else "bone", "m"))
         lines.append(("", "bone", "m"))
     if foe.statuses:
-        lines.append(("STATUSES", "ash", "m"))
+        lines.append(("STATUSES", "ash", "s"))
         for sid, n in foe.statuses.items():
             col = CONTENT.statuses[sid].colour
             lines += [(ln, col, "m") for ln in wrap(status_line(sid, n), iw, "m")]
-    scale = min(2.0, layout.foe_scale(rec))
-    feet = y + 10 + int(art.SPRITES[rec.art]["h"] * scale)
-    h = min(H - y - 40, feet - y + 40 + len(lines) * 14 + 26)
+    scale = min(3.0, layout.foe_scale(rec))
+    feet = y + 16 + int(art.SPRITES[rec.art]["h"] * scale)
+    h = min(H - SAFE_BOTTOM - 20 - y, feet - y + 64 + len(lines) * lh + 48)
     art.panel(x, y, w, h, fill="ink", border="blood")
     art.sprite(rec.art, art.frame_of(rec.art, "idle", pyxel.frame_count, 9), W // 2, feet, scale=scale)
-    center(W // 2, feet + 4, rec.name, "bone", "l")
-    center(W // 2, feet + 19, f"Health {foe.hp}/{foe.max_hp}   Evade {rec.evade}", "ash", "m", None)
-    ty = feet + 40
+    center(W // 2, feet + 6, rec.name, "bone", "l")
+    center(W // 2, feet + 30, f"Health {foe.hp}/{foe.max_hp}   Evade {rec.evade}", "ash", "m", None)
+    ty = feet + 64
     for ln, col, font in lines:
-        if ty > y + h - 34:
+        if ty > y + h - 48:
             break
-        text(x + 10, ty, ln, col, font, None)
-        ty += 14
-    center(W // 2, y + h - 18, "Tap to close", "line", "m", None)
+        text(x + 16, ty, ln, col, font, None)
+        ty += lh
+    center(W // 2, y + h - 32, "Tap to close", "line", "m", None)
 
 
 __all__ = ["draw", "explore", "SAFE_TOP"]

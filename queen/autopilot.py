@@ -195,7 +195,7 @@ class Pilot:
             ops = {e.op for e in card.effects}
             score = 1
             if card.type == "weapon":
-                score = 6 if b.weapon is None else 0
+                score = 6 if b.weapon is None else (3 if card.effects else 0)  # Equip ops: a draw, a shot.
             elif "shield" in ops or any(e.op == "apply" and e.status == "WARD" for e in card.effects):
                 score = 8 if need_block else 2
             elif "fire" in ops or "last_round" in ops:

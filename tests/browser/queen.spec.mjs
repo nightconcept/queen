@@ -2,8 +2,8 @@
 import { test, expect } from '@playwright/test';
 import { launch, point, python, tap, touch } from '../../nightengine/python/src/nightengine/web/harness/harness.mjs';
 
-const NEW_RUN = [160, 506];  // queen/scenes/title.py: the first button with no saved run.
-const CONTINUE = [160, 670];  // layout.bottom_buttons(1).
+const NEW_RUN = [270, 842];  // queen/scenes/title.py: the first button with no saved run.
+const CONTINUE = [270, 1104];  // layout.bottom_buttons(1).
 
 test('title, story, map and a dragged card in battle', async ({page}) => {
   const errors = await launch(page);
@@ -11,7 +11,7 @@ test('title, story, map and a dragged card in battle', async ({page}) => {
   await expect.poll(() => python(page, 'type(app.game.scene).__name__')).toBe('StoryScene');
   // Three cards (intro, agenda, act): finish the typing, then Continue, until the map shows.
   for (let i = 0; i < 12 && await python(page, 'type(app.game.scene).__name__') !== 'Explore'; i++) {
-    await tap(page, 160, 300);
+    await tap(page, 270, 500);
     await page.waitForTimeout(250);
     await tap(page, ...CONTINUE);
     await page.waitForTimeout(250);

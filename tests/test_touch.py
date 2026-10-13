@@ -51,5 +51,21 @@ class Touch(unittest.TestCase):
         self.assertEqual(b.turn, 2)
 
 
+class Layout(unittest.TestCase):
+    def test_any_number_of_enemies_fits(self):
+        """Four living enemies and one still dying is five on the line (the boss's adds crashed at 3+)."""
+        for n in range(1, 8):
+            xs = [layout.foe_x(i, n) for i in range(n)]
+            self.assertEqual(xs, sorted(set(xs)))
+            self.assertTrue(all(0 < x < layout.W for x in xs), xs)
+
+    def test_hand_fits_the_screen(self):
+        for n in range(1, 11):
+            for s in layout.hand_slots(n):
+                self.assertGreaterEqual(s.x - layout.CARD_W / 2, 0)
+                self.assertLessEqual(s.x + layout.CARD_W / 2, layout.W)
+                self.assertLessEqual(s.y + layout.CARD_H / 2, layout.H - layout.SAFE_BOTTOM)
+
+
 if __name__ == "__main__":
     unittest.main()

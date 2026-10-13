@@ -8,7 +8,7 @@
   "tier": "S",
   "type": "weapon",
   "subtype": "Revolver",
-  "cost": 1,
+  "cost": 0,
   "target": "none",
   "icons": [
    "combat"
@@ -42,14 +42,14 @@
   "tier": "S",
   "type": "weapon",
   "subtype": "AR",
-  "cost": 1,
+  "cost": 0,
   "target": "none",
   "icons": [
    "combat"
   ],
   "art": "gun",
   "pool": true,
-  "text": "+1 die. Rolls of 4 count as hits. 3 damage per hit.",
+  "text": "Equip: draw 1. +1 die. Rolls of 4 count as hits. 3 damage per hit.",
   "weapon": {
    "dice": 1,
    "hit": 4,
@@ -57,14 +57,20 @@
    "durability": 6
   },
   "plus": {
-   "text": "+1 die. Rolls of 4 count as hits. 4 damage per hit.",
+   "text": "Equip: draw 1. +1 die. Rolls of 4 count as hits. 4 damage per hit.",
    "weapon": {
     "dice": 1,
     "hit": 4,
     "damage": 4,
     "durability": 6
    }
-  }
+  },
+  "effects": [
+   {
+    "op": "draw",
+    "n": 1
+   }
+  ]
  },
  "GRAVITAS_CANNON": {
   "name": "Gravitas Cannon",
@@ -73,7 +79,7 @@
   "tier": "P",
   "type": "weapon",
   "subtype": "AR",
-  "cost": 2,
+  "cost": 1,
   "target": "none",
   "icons": [
    "combat"
@@ -113,7 +119,7 @@
   "tier": "X",
   "type": "weapon",
   "subtype": "Revolver",
-  "cost": 2,
+  "cost": 1,
   "target": "none",
   "icons": [
    "combat"
@@ -133,7 +139,7 @@
    }
   },
   "plus": {
-   "cost": 1
+   "cost": 0
   }
  },
  "DECEMBER_REMEMBRANCE": {
@@ -144,14 +150,14 @@
   "tier": "X",
   "type": "weapon",
   "subtype": "Shotgun",
-  "cost": 2,
-  "target": "none",
+  "cost": 1,
+  "target": "enemy",
   "icons": [
    "combat"
   ],
   "art": "gun",
   "pool": true,
-  "text": "+1 die. If you roll at least 1 hit, deal 12 damage instead.",
+  "text": "Equip: Fire. +1 die. If you roll at least 1 hit, deal 12 damage instead.",
   "weapon": {
    "dice": 1,
    "hit": 5,
@@ -163,7 +169,7 @@
    }
   },
   "plus": {
-   "text": "+2 dice. If you roll at least 1 hit, deal 12 damage instead.",
+   "text": "Equip: Fire. +2 dice. If you roll at least 1 hit, deal 12 damage instead.",
    "weapon": {
     "dice": 2,
     "hit": 5,
@@ -174,7 +180,12 @@
      "flat": 12
     }
    }
-  }
+  },
+  "effects": [
+   {
+    "op": "fire"
+   }
+  ]
  },
  "DEVILS_EYE": {
   "name": "Devil's Eye",
@@ -183,7 +194,7 @@
   "tier": "P",
   "type": "weapon",
   "subtype": "Sniper",
-  "cost": 2,
+  "cost": 1,
   "target": "none",
   "icons": [
    "intellect"

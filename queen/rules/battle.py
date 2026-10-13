@@ -73,6 +73,7 @@ class Roll:
     per_hit: int
     damage: int
     rerolled: list[tuple[int, int, int]] = field(default_factory=list)  # (die index, old face, new face)
+    preview: bool = False  # A what-if roll for the drag preview: specials change the damage only, nothing else.
 
 
 class Handle:
@@ -392,7 +393,7 @@ class Battle:
         self.cards_played += 1
         self.emit("play", uid=inst.uid, card=inst.id, target=target.uid if target else None)
         if card.type == "weapon":
-            self.equip(inst)
+            self.equip(inst, target)
         elif card.type == "equipment":
             self.equipment.append(inst)
             if len(self.equipment) > 2:
@@ -413,7 +414,9 @@ class Battle:
         self.check_end()
         return True
 
-    def equip(self, inst: CardInst):
+    def equip(self, inst: CardInst, target: Foe | None = None):
+        """Put a weapon in the slot. Its card `effects` are its Equip ops (GDD 10.3): they run once, now, with the
+        new weapon already in hand, so an Equip Fire shoots the new gun."""
         if inst in self.hand:
             self.hand.remove(inst)
         old = self.weapon
@@ -423,6 +426,8 @@ class Battle:
             inst.durability = inst.card.weapon.durability
         self.weapon = inst
         self.emit("equip", uid=inst.uid, weapon=True)
+        if inst.card.effects:
+            self.push(inst.card.effects, inst, target)
 
     def end_turn(self) -> bool:
         if self.over:
@@ -578,9 +583,9 @@ class Battle:
 
     # --- Fire
 
-    def fire_pool(self, target: Foe, bonus: int = 0) -> tuple[Weapon, int, int]:
-        """(weapon, dice, hit target) for a Fire at `target`, after hooks."""
-        w = self.weapon_stats()
+    def fire_pool(self, target: Foe, bonus: int = 0, weapon: Weapon | None = None) -> tuple[Weapon, int, int]:
+        """(weapon, dice, hit target) for a Fire at `target`, after hooks. `weapon` is a gun not yet equipped."""
+        w = weapon or self.weapon_stats()
         dice = self.hook("fire_dice", {"attacker": self.hero, "target": target, "dice": self.combat + w.dice + bonus})
         hit = self.hook("hit_target", {"attacker": self.hero, "target": target, "hit": w.hit})
         return w, max(1, dice["dice"]), max(2, min(6, hit["hit"]))
@@ -718,7 +723,7 @@ def fire_preview(battle: Battle, inst: CardInst, target: Foe) -> dict | None:
     bonus = e.get("dice", 0)
     if e.op == "last_round" and battle.weapon:
         bonus = 2 * (battle.weapon.durability or 0)
-    w, dice, hit = battle.fire_pool(target, bonus)
+    w, dice, hit = battle.fire_pool(target, bonus, inst.card.weapon)  # A weapon's Equip Fire shoots itself.
     dist = hit_distribution(dice, hit, w.crit, battle.crit_hits(), battle.hero.has("FOCUS"))
     per = battle.per_hit(w, target)
     zero_as = e.get("zero_as")
@@ -727,10 +732,10 @@ def fire_preview(battle: Battle, inst: CardInst, target: Foe) -> dict | None:
     for hits, pr in dist.items():
         h = zero_as if hits == 0 and zero_as else hits
         dmg = h * per
-        if w.special in ("flat_on_hit",) and h > 0:
-            dmg = w.params.flat
-        elif w.special == "double":
-            dmg *= 2
+        if w.special:  # The gun's own special, on a roll with no faces (a face rule like exact_six adds nothing).
+            roll = Roll([], hit, w.crit, h, 0, per, dmg, preview=True)
+            WEAPON_SPECIALS[w.special](battle, roll, w.params)
+            dmg = roll.damage
         expected += pr * dmg
         if dmg >= need:
             kill += pr

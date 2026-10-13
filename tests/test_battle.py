@@ -77,6 +77,44 @@ class Fire(unittest.TestCase):
         self.assertEqual(b.hero.has("WARD"), 2)
 
 
+class Weapons(unittest.TestCase):
+    def hand_index(self, b, cid):
+        return next(i for i, c in enumerate(b.hand) if c.id == cid)
+
+    def test_equip_costs_no_energy_by_default(self):
+        b = battle(cards=["SCOUT_CARBINE"] + ["BRACE"] * 8)
+        b.hand.insert(0, b.draw.pop(next(i for i, c in enumerate(b.draw) if c.id == "SCOUT_CARBINE")))
+        energy, hand = b.energy, len(b.hand)
+        self.assertTrue(b.play(self.hand_index(b, "SCOUT_CARBINE")))
+        self.assertEqual(b.energy, energy)
+        self.assertEqual(b.weapon.id, "SCOUT_CARBINE")
+        self.assertEqual(len(b.hand), hand - 1 + 2)  # Equip: draw 2.
+
+    def test_equip_fire_shoots_the_new_gun(self):
+        b = battle(cards=["SNUB_NOSE"] + ["BRACE"] * 8)
+        b.foes[0].hp = b.foes[0].max_hp = 999
+        b.hand.insert(0, next(c for c in b.draw if c.id == "SNUB_NOSE"))
+        b.draw.remove(b.hand[0])
+        rolls = len([e for e in b.events if e.kind == "roll"])
+        self.assertTrue(b.play(0, 0))
+        self.assertEqual(len([e for e in b.events if e.kind == "roll"]) - rolls, 1)
+        self.assertEqual(b.weapon.durability, b.weapon.card.weapon.durability - 1)
+
+    def test_preview_uses_the_gun_being_equipped(self):
+        from queen.rules.battle import fire_preview
+
+        b = battle(cards=["SNUB_NOSE"] + ["BRACE"] * 8)
+        snub = next(c for c in b.run.deck if c.id == "SNUB_NOSE")
+        p = fire_preview(b, snub, b.foes[0])
+        self.assertEqual(p["dice"], b.combat + snub.card.weapon.dice)
+
+    def test_stronger_guns_cost_energy(self):
+        from queen.content import CONTENT
+
+        self.assertGreater(CONTENT.cards["HIVE_SPLITTER"].cost, 0)
+        self.assertEqual(CONTENT.cards["RTX_SPECIAL_00"].cost, 0)
+
+
 class Rules(unittest.TestCase):
     def test_guard_forces_the_target(self):
         b = battle(("DRONE", "HUSK"))

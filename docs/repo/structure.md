@@ -24,7 +24,7 @@ behaviour (GDD 16).
 ```
 game.py                 Entry point: `uv run game.py` (just run / just dev).
 queen/
-  config.py             Screen size (320x714), safe areas, paths. No tuning numbers.
+  config.py             Screen size (540x1170), safe areas, paths. No tuning numbers.
   content.py            Loads data/ into frozen records (Card, Enemy, Location, Story, ...). CONTENT.
   game.py               QueenGame: the scene stack, the campaign log, the run, saving, host events.
   mech/                 Mechanics as code: every handler that data names.
@@ -55,7 +55,7 @@ queen/
   frames.py             Renders a recording to PNGs.
   data/                 The numbers. See content.md for every field.
 assets/                 Fonts and imported art (assets/art/README.md lists sources and licences).
-tools/                  import_art.py (art packs to assets), import_font.py (Pixel Operator TTFs to BDF),
+tools/                  import_art.py (art packs to assets), import_font.py (Atkinson Hyperlegible TTFs to BDF),
                         shots.py (headless screenshots from a script), sim.py (autopilot balance sample).
 .claude/skills/release/ The repo's release skill: bump, tag, push, and keep one release on GitHub.
 tests/                  unittest: layers, content, battle, explore, touch, run. tests/browser: Playwright.
@@ -69,7 +69,8 @@ docs/design/GDD.md      The game design. docs/exec-plans/: plans for coding sess
 | --- | --- |
 | Add a card that uses existing ops | A record in `data/cards/<set>.json`. Nothing else. |
 | Add a card that needs a new effect | An `@op` in `mech/ops.py`, a row in content.md, then the record. |
-| Add a weapon with a new rule | A `@special` in `mech/weapons.py` and the weapon record. |
+| Add a gun | A record in `data/cards/` (`arsenal.json` for Queen's own). Equip effects are its `effects` (ops). |
+| Add a gun with a new rule | A `@special` in `mech/weapons.py` (changes its rolls), a new op (an Equip effect), or a hook (reacts while equipped), and the record. |
 | Add a status | A record in `data/statuses.json` and its `@hook`s in `mech/hooks.py`. |
 | Add a relic | A record in `data/relics.json`; a new `@hook` only if no existing one fits. |
 | Add an enemy | A record in `data/enemies.json` (or the scenario's), a behaviour if `cycle`/`weighted` will not do, and a sprite in `tools/import_art.py`. |

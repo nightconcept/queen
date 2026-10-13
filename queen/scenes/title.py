@@ -1,6 +1,6 @@
 """The title: New Run, Continue, and the Hunter's dossier (the campaign log)."""
 
-from ..config import H
+from ..config import H, W
 from ..ui import layout
 from .base import Button, Menu, QScene
 
@@ -17,7 +17,7 @@ class Title(QScene):
             items.append(("Continue", "continue", "primary"))
         items.append(("New Run", "new", "normal" if game.saved_run else "primary"))
         items.append(("Dossier", "dossier", "ghost"))
-        rects = layout.button_column(len(items), H - 230, h=44, gap=10, x=40, w=240)
+        rects = layout.button_column(len(items), H - 360, h=64, gap=14, x=70, w=W - 140)
         return [Button(r, label, value, style=style) for r, (label, value, style) in zip(rects, items, strict=True)]
 
     def tick(self, game, inp, gestures):

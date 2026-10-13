@@ -13,12 +13,12 @@ JSON object keyed by an UPPER_CASE id; a `_doc` key is a comment. Records load i
 | `element` | `R`, `G`, `K`, `E`, `Z` or null (neutral). Reward pools use the Hunter's element and neutral. |
 | `tier` | `B` basic, `S` Standard, `P` Prototype, `X` Prime, `W` weakness, `T` trauma. |
 | `type` | `action`, `weapon`, `equipment`, `aura`, `trauma`, `spore`. |
-| `cost` | Energy. `cost_mods`: `[{"if": condition, "delta": -1}]`. |
+| `cost` | Energy. `cost_mods`: `[{"if": condition, "delta": -1}]`. A weapon costs 0 unless its power earns a cost (GDD 10.3). |
 | `target` | `enemy` (drag onto an enemy) or `none` (drag above the play line). |
 | `text` | The full rules text (inspect view). Hand faces are generated from the ops (`ui/cardtext.py`). |
-| `effects` | Ops, in order: `{"op": name, ...params, "if": condition}`. |
+| `effects` | Ops, in order: `{"op": name, ...params, "if": condition}`. On a weapon these are its Equip ops: they run once when it is equipped, with the new gun in the slot (a `fire` shoots it; give the card `target: enemy`). |
 | `keywords` | `exhaust`, `retain`, `ethereal`, `innate`, `unplayable`. |
-| `weapon` | `dice`, `hit`, `damage` (per hit), `crit`, `durability` (ammo per battle), `special`, `params`. |
+| `weapon` | `dice`, `hit`, `damage` (per hit), `crit`, `durability` (ammo per battle), `special` (a `mech/weapons.py` handler that changes each roll), `params`. |
 | `hooks`, `params` | Hook event to handler, and the handler's numbers (auras, equipment, traumas). `<event>_in_hand` listens while in hand. |
 | `uses` | Equipment uses. |
 | `plus` | The upgrade: any of `text`, `cost`, `effects`, `weapon`, `hooks`, `params`, `keywords`, `cost_mods`, `uses`. |

@@ -601,9 +601,21 @@ each turn until the battle ends. Nerve loss does not end a battle, because horro
 ### 10.3 Weapons and durability
 
 - You have one **Weapon** slot. Playing a Weapon card equips it. The old weapon goes to the discard pile.
+- **Equipping is free.** A plain gun costs 0 energy: equipping it spends only the card, the way a draw
+  would. Playtests showed that paying energy to change guns felt bad, because the turn's energy then went to
+  setup instead of shooting. Energy is the **power dial**: a gun stronger than the baseline costs 1 or more
+  (*Gravitas Cannon*, *Forgetfulness*, *December Remembrance*, *Devil's Eye* cost 1; *Hive Splitter* costs 2).
 - A Weapon sets: **bonus dice**, **hit target** (default 5, meaning 5–6 hit), **damage per hit**, **crit**
   (6s count as 2 hits), **ammo** (Highcard's durability), and an optional **special** (a named handler: for
   example *December Remembrance*: "if at least 1 hit, deal 12 damage instead").
+- **Equip effects.** A weapon card's `effects` are its **Equip** ops: they run once, when it is equipped, with
+  the new gun already in the slot. *101 Nights* draws 1, *Scout Carbine* draws 2, and *Snub Nose*, *December
+  Remembrance* and *Hive Splitter* fire the new gun at once (these target an enemy, so the card is dragged
+  onto one). The card face shows them as "Eq: Draw 1" in the weapon colour.
+- **A gun's code.** Each new gun is JSON. Behaviour that the existing ops cannot express goes in one of three
+  places, each a registered function: its `special` (`mech/weapons.py`, changes each of its rolls; it also runs
+  for the drag preview), its Equip ops (`mech/ops.py`), and its `hooks` (`mech/hooks.py`, react to battle
+  events while it is equipped).
 - **Ammo** is Highcard's durability, per battle. Each **Fire** uses 1. At 0 the weapon is **spent**: it is
   exhausted for the rest of this battle, and you fire Bare Hands until you equip another. Ammo refills at
   the start of every battle, and the last weapon you held stays equipped. Playtests showed that
@@ -694,13 +706,13 @@ Statuses are records in `data/statuses.json`. Their behaviour is a named hook in
 | Brace | 4 | 1 | Action | Gain 5 Shields. |
 | Breach Charge | 1 | 2 | Action (signature) | Fire with +2 dice. Exposed 2. |
 | Survey | 1 | 1 | Action | Draw 1. Recon: if this is your first card this turn, gain 1 clue. Exhaust. |
-| 101 Nights | 1 | 1 | Weapon (INVA) | +1 die, hits on 4+. 3 damage per hit. Ammo 6. |
+| 101 Nights | 1 | 0 | Weapon (INVA) | Equip: draw 1. +1 die, hits on 4+. 3 damage per hit. Ammo 6. |
 | Tormented Dreamscape | 1 | 0 | Weapon (INVA, weakness) | When drawn, it equips itself. +3 dice, 2 damage per hit. On hit, your Shields become 0. Ammo 6. |
 
 The basic Fire and Brace cards (StS Strike and Defend) are there to be removed or upgraded. This is
 deliberate: card removal is the long-term goal of a StS deck.
 
-### 11.3 The Kinetic reward pool (slice: 24 cards)
+### 11.3 The Kinetic reward pool (slice: 27 cards)
 
 The tables below give the design intent. **The numbers in `queen/data/cards/` are the source of truth**;
 when they differ, the data wins. Costs use StS scale (Highcard cost ÷ 2, rounded). Tiers: S = Standard (common), P = Prototype (uncommon),
@@ -716,8 +728,10 @@ X = Prime (rare). The full records are in `data/cards/*.json`.
 | Field Strip | QUEEN | S | 1 | Action | Repair your weapon by 2. Draw 1. |
 | Combat Reload | QUEEN | S | 0 | Action | Repair your weapon by 1. Retain. |
 | Ricochet | QUEEN | S | 1 | Action | Fire at a random enemy 2 times with −2 dice. |
-| RTX Special 00 | INVA | S | 1 | Weapon | +1 die, 2 damage per hit, doubled. Ammo 6. |
-| 101 Nights | INVA | S | 1 | Weapon | +1 die, hits on 4+, 3 damage per hit. Ammo 6. |
+| RTX Special 00 | INVA | S | 0 | Weapon | +1 die, 2 damage per hit, doubled. Ammo 6. |
+| 101 Nights | INVA | S | 0 | Weapon | Equip: draw 1. +1 die, hits on 4+, 3 damage per hit. Ammo 6. |
+| Snub Nose | QUEEN | S | 0 | Weapon | Equip: Fire. +0 dice, 3 damage per hit. Ammo 4. |
+| Scout Carbine | QUEEN | S | 0 | Weapon | Equip: draw 2. +1 die, 2 damage per hit. Ammo 5. |
 | Stand Behind Me | INVA | S | 1 | Action | Prevent the next 6 damage this turn (does not drop at turn start). |
 | Hunter's Mark | QUEEN | P | 1 | Action | Exposed 2. Momentum +1 against this enemy. Exhaust. |
 | Adrenal Spike | QUEEN | P | 0 | Action | Gain 2 energy. Take 3 damage. Exhaust. |
@@ -725,10 +739,11 @@ X = Prime (rare). The full records are in `data/cards/*.json`.
 | Crit Chain | QUEEN | P | 2 | Aura | Each crit draws a card. |
 | Point Blank | QUEEN | P | 2 | Action | Fire with +3 dice. Costs 1 less if the target is Exposed. |
 | Impossible Scenario | INVA | P | 1 | Action | Fire. If 0 hits, count 2 hits instead. |
-| Gravitas Cannon | INVA | P | 2 | Weapon | +0 dice. On hit, deal 10 damage instead of the hit damage. Durability 3. |
+| Gravitas Cannon | INVA | P | 1 | Weapon | +0 dice. On hit, deal 10 damage instead of the hit damage. Durability 3. |
+| Hive Splitter | QUEEN | P | 2 | Weapon | Equip: Fire. +3 dice, hits on 4+, crit, 3 damage per hit. Ammo 3. |
 | RXX Auto-loader Holster | INVA | P | 2 | Equipment | The first Fire each turn fires twice. Durability 5 (uses). |
-| Forgetfulness | INVA | X | 2 | Weapon | +2 dice. If exactly one 6, deal 6 damage instead of 1. Crit. Durability 3. |
-| December Remembrance | INVA | X | 2 | Weapon | +1 die. If at least 1 hit, deal 5 damage. Durability 3. |
+| Forgetfulness | INVA | X | 1 | Weapon | +2 dice. If exactly one 6, deal 6 damage instead of 1. Crit. Durability 3. |
+| December Remembrance | INVA | X | 1 | Weapon | Equip: Fire. +1 die. If at least 1 hit, deal 5 damage. Durability 3. |
 | Last Round | QUEEN | X | 1 | Action | Fire with dice equal to twice your weapon's durability, then break it. |
 | Execute | QUEEN | X | 2 | Action | Fire. If the enemy has less than 30% HP after, it dies. Exhaust. |
 | Buster Exoskeleton | INVA | X | 2 | Equipment | Damage to you is reduced to 1. If it would kill you, destroy this instead. Durability 5. |
@@ -738,7 +753,7 @@ X = Prime (rare). The full records are in `data/cards/*.json`.
 | Type | Behaviour |
 | --- | --- |
 | **Action** | Played from hand, resolves, goes to the discard pile (StS Skill/Attack). |
-| **Weapon** | Equips into the weapon slot (§10.3). |
+| **Weapon** | Equips into the weapon slot (§10.3). Free unless its power earns a cost; its Equip ops run once. |
 | **Equipment** | Goes into an equipment slot (2 slots). Persists between battles. Some have uses. |
 | **Aura** | Stays in play until the battle ends (StS Power). |
 | **Trauma** | Permanent curse. Unplayable unless it says otherwise. |
@@ -843,45 +858,53 @@ counter, reset when a Prime appears). **Skip** is always offered. Weights live i
 
 ### 14.1 Resolution and scaling
 
-- **Logical screen 320 × 714, portrait.** The Pixel 10 Pro is 1280 × 2856, so this is an exact 4× integer
-  scale with no letterbox. On other phones the WebView shell scales to fit (NightEngine `launcher.mjs`).
-- **Safe area.** Keep text and touch targets 12 px from the top (status bar and camera) and 16 px from the
-  bottom (gesture bar). Rules use `config.SAFE_TOP` and `config.SAFE_BOTTOM`.
+- **Logical screen 540 × 1170, portrait.** The first-class phone is the smallest flagship screen,
+  1080 × 2340 (Galaxy S25 class), where this is an exact 2× with no letterbox. The Pixel 10 (1080 × 2424) and
+  the Pixel 10 Pro in its default 1080-wide mode are also 2×, with a thin band above and below. Larger screens
+  scale to fit (NightEngine `launcher.mjs`). The old 320 × 714 screen was 3.375× on a 1080-wide phone, so
+  pixels came out three or four wide and text looked ragged. At 540 wide, text is drawn at the phone's
+  resolution and only the art is upscaled.
+- **Art scale.** Pixel art is drawn at whole multiples: backgrounds and card icons at 2×, battle sprites at
+  3× (2× when four or more enemies share the line).
+- **Safe area.** The game draws behind the camera cutout. Keep text and touch targets 52 px from the top
+  (the cutout and status bar) and 24 px from the bottom (gesture bar). Rules use `config.SAFE_TOP` and
+  `config.SAFE_BOTTOM`.
 - **Thumb zone.** Primary actions are in the bottom 45%. The top 15% is read-only info.
-- **Minimum touch target:** 24 × 24 logical px (6 mm on the Pixel 10 Pro).
+- **Minimum touch target:** 48 × 48 logical px (about 6 mm).
 
-### 14.2 Battle layout (320 × 714)
+### 14.2 Battle layout (540 × 1170)
 
 ```
  y=0   ┌──────────────────────────────────┐
-       │ ♥ 54/60  ✦ 6/7   ⚡ ENTROPY 4/6  │  top bar (HP, Nerve, agenda clock, act clues)
- y=28  │ Act 1 · Clues 2/4      [≡ deck] │
- y=48  ├──────────────────────────────────┤
-       │   [intent]   [intent]  [intent]  │  intents float above enemies
+       │ (camera cutout: art only)        │
+ y=52  │ ⧗ Entropy 4/6   ⚷ Clues 2/4  XP  │  top bar: only what the screen does not show
+ y=96  ├──────────────────────────────────┤
+       │   [intent]   [intent]  [intent]  │  intents float above enemies (tap to read)
        │    ╭───╮      ╭───╮     ╭───╮    │
-       │    │ E │      │ E │     │ E │    │  enemies (up to 4), art 48–96 px
-       │    ╰───╯      ╰───╯     ╰───╯    │
+       │    │ E │      │ E │     │ E │    │  enemies: any number, each in an equal share of the width
+ y=440 │    ╰───╯      ╰───╯     ╰───╯    │  feet line
        │   ▓▓▓▓░ 12    ▓▓▓░ 9   ▓▓▓▓ 14   │  HP bars + statuses
- y=300 │                                  │
-       │        · · dice tray · ·         │  dice roll here (center)
- y=380 │                                  │
-       │  ROOK [art]   🛡 5   Focus ●●    │  hunter row: shields, statuses, focus
-       │  ╭weapon╮ RTX 00  dur ▮▮▮▯        │  weapon slot + equipment + auras
- y=470 ├────────── play line ─────────────┤
-       │ (3)⚡           [END TURN]  (7)↻  │  energy orb, end turn, draw/discard piles
- y=520 │   ╭────╮╭────╮╭────╮╭────╮╭────╮ │
-       │   │card││card││card││card││card│ │  hand: cards 66×120, shallow arc
-       │   │    ││    ││    ││    ││    │ │
- y=700 └──────────────────────────────────┘
+ y=540 │        · · dice tray · ·         │  dice land here (center)
+ y=600 │  [Rook 3x]  ROOK ♥▓▓▓▓▓ 54/60    │  hunter: health, shields, nerve, statuses
+       │             ╭weapon──────────╮   │  weapon box: name, pool, ammo
+       │             [aura] [gear]        │
+ y=836 ├────────── play line ─────────────┤
+       │ [DRAW][DISC]  (3)   [END TURN]   │  piles, energy orb, end turn
+ y=914 │ ╭────╮╭────╮╭────╮╭────╮╭────╮   │
+       │ │card││card││card││card││card│   │  hand: cards 104×216, shallow arc
+ y=1146└──────────────────────────────────┘  (gesture bar below)
 ```
 
-- Hand cards are 66 × 120 at rest, so five sit side by side with only their frames overlapping. The face
-  shows the name (two bold lines or three regular ones; a card whose name does not fit has a shorter
+- **No duplicated numbers.** The top bar shows what the screen below does not. In battle it shows entropy
+  and clues (Rook's panel shows health and nerve); on the map it shows health and nerve (the agenda and act
+  cards show entropy and clues). XP and the round show on both.
+- Hand cards are 104 × 216 at rest, so five sit side by side. The face
+  shows the name (two bold lines or two regular ones; a card whose name does not fit has a shorter
   `face` name), the type, and up to four short lines generated from the card's ops and weapon stats
   (`ui/cardtext.py`: "FIRE +2d", "Expose 2", "+1d hit4+"), never hand-written. `tests/test_content.py`
   checks that every face fits. The inspect view shows the face at 2×, the full name, the rules text and a
   line for each keyword. A lifted card rises at 1×; a dragged one grows to 1.25× over a target.
-- The hand sits on a shallow arc with no tilt: rotated pixel text does not read. With more than 5 cards the
+- The hand sits on a shallow arc with no tilt: rotated 1-bit text does not read. With more than 5 cards the
   overlap grows, and the touched card rises and pushes its neighbours away (StS). Every other card list
   (reward, deck, skill test) also draws cards at 1×.
 - **Dice roll.** Each die is thrown from Rook's hand, tumbles and bounces three times with its face
@@ -892,7 +915,7 @@ counter, reset when a Prime appears). **Skip** is always offered. Weights live i
 
 | Gesture | Result |
 | --- | --- |
-| Touch a card in hand | It lifts (rises 36 px at 1×). A crowded hand spreads. |
+| Touch a card in hand | It lifts (rises 64 px at 1×). A crowded hand spreads. |
 | Drag | The card follows the finger with smoothing (lerp 0.35). It tilts with the x velocity (max 8°). For a targeted card, an arrow (StS) draws from the card to the finger, and enemies under the finger highlight with the damage preview. |
 | Release over a target / above the play line | The card plays: slam, flash, resolve. |
 | Release elsewhere | It springs back to the hand. |
@@ -958,17 +981,19 @@ Pyxel 2 supports more than 16 colours. Queen uses a **64-colour palette** in `da
 
 ### 15.4 Font
 
-**Pixel Operator** (CC0, Jayvee Enaguas), a proportional pixel font, converted to BDF at its design sizes
-(`assets/fonts/pixel-operator/`, `tools/import_font.py`). At the 4× phone scale one logical pixel is about
-0.2 mm, so text needs a cap height of 9 px or more to read at arm's length:
+**Atkinson Hyperlegible** (SIL OFL 1.1, Braille Institute), a typeface drawn for low-vision readers, so its
+letters are hard to confuse (Il1, 0O). `tools/import_font.py` draws it at exact pixel sizes with no
+anti-aliasing into BDF files (`assets/fonts/atkinson/`). At 2× on a 1080-wide phone one logical pixel is
+about 0.12 mm, so 1-bit edges do not show, and the body font is about the size of a phone's own text:
 
-- `m` (Pixel Operator 16, 13 px line, 9 px caps): the body font. Card rules, numbers, labels, buttons.
-- `l` (Pixel Operator Bold 16): names, headings, intent and status numbers.
-- `xl` (Pixel Operator Bold 32): banners and big numbers.
-- `s` (Pixel Operator 8): only the type line on a card face. Never for anything the player must read to decide.
+- `m` (Regular 20 px, 19 px tall): the body font. Card rules, numbers, labels, buttons.
+- `l` (Bold 20 px): names, headings, intent and status numbers.
+- `xl` (Bold 30 px): titles, banners and big numbers.
+- `s` (Regular 17 px): a card's type line, small labels (AMMO, DRAW), and "Tap to read" hints. Never for
+  anything the player must read to decide.
 
-Pixel text is drawn at whole scales with no rotation; a scaled or rotated card face is only shown while it
-moves. `ui/layout.py` reads the glyph widths from the BDF files, so layout and tests need no pyxel.
+Text is drawn at 1× with no rotation; a scaled or rotated card face is only shown while it moves.
+`ui/layout.py` reads the glyph widths and heights from the BDF files, so layout and tests need no pyxel.
 
 ### 15.5 Audio
 
@@ -1022,7 +1047,7 @@ music (CC0, OGG) cannot be played by Pyxel directly, so it stays out of the buil
 | --- | --- | --- | --- |
 | `OPS` | card `effects[].op`, story `effects[].op` | `fn(ctx, src, target, p)` | `fire`, `shield`, `draw`, `apply`, `energy`, `repair`, `clue`, `entropy`, `heal`, `horror` |
 | `CARD_HANDLERS` | card `handler` | `fn(ctx, card, target)` | `last_round`, `execute` |
-| `WEAPON_SPECIALS` | weapon `special` | `fn(roll, p) -> damage` | `december`, `forgetfulness`, `gravitas` |
+| `WEAPON_SPECIALS` | weapon `special` | `fn(ctx, roll, p)`, changes `roll.damage` | `double`, `flat_on_hit`, `exact_six`, `dreamscape` |
 | `BEHAVIOURS` | enemy `behaviour` | generator yielding intents | `cycle`, `weighted`, `phases`, `hatch`, `stalker`, `queen` |
 | `INTENT_OPS` | intent `effects[].op` | `fn(ctx, enemy, p)` | `attack`, `horror`, `shield`, `buff`, `summon`, `spore` |
 | `HOOKS` | status / relic / aura `hooks` | `fn(ctx, owner, p, event)` | `momentum`, `exposed`, `crit_chain`, `chitin_plate` |
@@ -1143,9 +1168,9 @@ def weighted(e, p):
 - `tests/test_run.py`: a full seeded run by the autopilot reaches a resolution without errors.
 - `tests/test_touch.py`: a NightEngine `Driver` drags a card to an enemy with pointers and checks that
   the card was played.
-- `just frames`: renders a replay to PNGs at 320 × 714 for visual review. pyxel-mcp `run` captures for
+- `just frames`: renders a replay to PNGs at 540 × 1170 for visual review. pyxel-mcp `run` captures for
   agent checks.
-- Every visual change is checked at the phone size (320 × 714, `--target android`).
+- Every visual change is checked at the phone size (540 × 1170, `--target android`).
 
 ---
 
@@ -1161,7 +1186,7 @@ def weighted(e, p):
 - 6 enemies, 2 elites and the Queen (two phases).
 - The starter deck plus 24 reward cards, 5 relics, and the Hive Bag with commit.
 - Rewards, XP upgrades at rests, resolutions, and a campaign log that persists.
-- Touch first at 320 × 714. Keyboard and gamepad work too.
+- Touch first at 540 × 1170. Keyboard and gamepad work too.
 - Android APK, web and desktop builds through NightEngine.
 - Code-written sound effects and two music loops.
 

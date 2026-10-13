@@ -6,6 +6,7 @@ one by one: each sets `view` (the snapshot to draw) and adds effects (`fx`). Inp
 
 from nightengine import DOWN, LEFT, RIGHT, UP, A, B, C
 
+from ..config import W
 from ..content import CONTENT
 from ..rules import explore
 from ..rules.battle import Battle, fire_preview
@@ -97,7 +98,7 @@ class BattleScene(QScene):
             if d["lost"]:
                 self.float(x, y - 10, str(d["lost"]), col, big=True)
             if d["blocked"]:
-                self.float(x + 14, y + 6, f"-{d['blocked']}", "shield")
+                self.float(x + 24, y + 10, f"-{d['blocked']}", "shield")
             self.anim[who] = ("hit", self.t)
             if who == 0:
                 self.shake = 10 if d["lost"] else 4
@@ -116,7 +117,7 @@ class BattleScene(QScene):
             x, y = self.fighter_xy(d["who"])
             st = CONTENT.statuses[d["status"]]
             if d["status"] != "BROOD":
-                self.float(x, y + 12, f"{st.name} {d['n']:+d}", st.colour)
+                self.float(x, y + 20, f"{st.name} {d['n']:+d}", st.colour)
         elif k == "died":
             self.anim[d["who"]] = ("death", self.t)
             game.cue("die")
@@ -137,10 +138,11 @@ class BattleScene(QScene):
             x, y = self.fighter_xy(d["who"])
             self.float(x, y - 10, f"+{d['n']}", "spore")
         elif k == "clue":
-            self.float(160, 300, f"+{d['n']} CLUE", "clue", big=True)
+            self.float(W // 2, 500, f"+{d['n']} CLUE", "clue", big=True)
             game.cue("clue")
         elif k == "spent":
-            self.float(236, 380, "OUT OF AMMO", "blood")
+            x, y, w, _ = layout.WEAPON_BOX
+            self.float(x + w // 2, y - 10, "OUT OF AMMO", "blood")
         elif k == "forced":
             self.banner = ("TORMENTED DREAMSCAPE", "horror", 30)
         elif k == "awaken":
@@ -164,14 +166,14 @@ class BattleScene(QScene):
 
     def fighter_xy(self, who: int) -> tuple[float, float]:
         if who == 0:
-            return layout.HERO_FEET[0], layout.HERO_FEET[1] - 50
+            return layout.HERO_FEET[0], layout.HERO_FEET[1] - 110
         foes = self.view_foes()
         for i, f in enumerate(foes):
             if f["uid"] == who:
                 rec = CONTENT.enemies[f["id"]]
-                h = CONTENT.art["sprites"][rec.art]["h"] * layout.foe_scale(rec)
+                h = CONTENT.art["sprites"][rec.art]["h"] * layout.foe_scale(rec, len(foes))
                 return self.foe_x.get(who, layout.foe_x(i, len(foes))), layout.FEET_Y - h / 2
-        return 160, 200
+        return W // 2, 300
 
     def view_foes(self) -> list[dict]:
         """The enemies to lay out: the living, and those still playing their death."""
@@ -236,7 +238,7 @@ class BattleScene(QScene):
         for uid, target in zip(hand, targets, strict=True):
             s = self.slots.get(uid)
             if s is None:  # Drawn: it flies in from the draw pile.
-                s = self.slots[uid] = Slot(layout.PILE_DRAW[0] + 20, layout.PILE_DRAW[1] + 10, -20, 0.4)
+                s = self.slots[uid] = Slot(layout.PILE_DRAW[0] + 35, layout.PILE_DRAW[1] + 28, -20, 0.4)
             if self.drag and self.drag["uid"] == uid:
                 tx, ty = self.drag["x"], self.drag["y"]
                 s.x, s.y = lerp(s.x, tx, 0.45), lerp(s.y, ty, 0.45)
@@ -264,8 +266,9 @@ class BattleScene(QScene):
         for i, f in enumerate(living):
             rec = CONTENT.enemies[f["id"]]
             art = CONTENT.art["sprites"][rec.art]
-            h = int(art["h"] * layout.foe_scale(rec))
-            r = layout.foe_rect(i, len(living), int(art["w"] * layout.foe_scale(rec)), h)
+            scale = layout.foe_scale(rec, len(living))
+            h = int(art["h"] * scale)
+            r = layout.foe_rect(i, len(living), int(art["w"] * scale), h)
             hit = inside(x, y, r) or (intents and inside(x, y, layout.intent_rect(i, len(living), h)))
             if hit and f["alive"]:
                 return next(j for j, foe in enumerate(foes) if foe.uid == f["uid"])
@@ -292,8 +295,8 @@ class BattleScene(QScene):
             elif g.kind == "drag" and self.lifted is not None:
                 uid = self.view["hand"][self.lifted]
                 if self.drag is None:
-                    self.drag = {"uid": uid, "x": g.x, "y": g.y - 30, "vx": 0.0}
-                self.drag["x"], self.drag["y"] = g.x, g.y - 30
+                    self.drag = {"uid": uid, "x": g.x, "y": g.y - 50, "vx": 0.0}
+                self.drag["x"], self.drag["y"] = g.x, g.y - 50
                 self.drag["vx"] = self.drag["vx"] * 0.5 + g.dx
                 inst = b.hand[self.lifted]
                 self.hover = None

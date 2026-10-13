@@ -13,7 +13,8 @@ Every file here comes from a CC0 (public domain) pack, cut and quantised to the 
 
 Credit is not required by CC0, but the title screen names the artists.
 
-The fonts are in `../fonts/pixel-operator/`: Pixel Operator by Jayvee Enaguas (HarvettFox96), CC0 1.0
-(`LICENSE`), from https://www.dafont.com/pixel-operator.font. `tools/import_font.py` converts the TTFs to BDF
-at their design sizes: `s` (Pixel Operator 8), `m` (Pixel Operator 16), `l` (Pixel Operator Bold 16) and `xl`
-(Pixel Operator Bold 32).
+The fonts are in `../fonts/atkinson/`: Atkinson Hyperlegible by the Braille Institute of America, SIL Open Font
+License 1.1 (`OFL.txt`), from https://github.com/google/fonts/tree/main/ofl/atkinsonhyperlegible.
+`tools/import_font.py` draws the TTFs at exact pixel sizes, with no anti-aliasing, into BDF files: `s` (Regular 17),
+`m` (Regular 20), `l` (Bold 20) and `xl` (Bold 30). The BDFs are a converted form of the font, under the same
+licence.

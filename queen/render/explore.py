@@ -17,8 +17,9 @@ from .hud import top_bar
 def draw(scene, game, t):
     run = game.run
     pyxel.cls(C("void"))
-    art.background("hive", 0, 46, W, 380, 240, 60)
-    art.dim(0, 46, W, 380, 0.55)
+    top = layout.TOP_BAR[3]
+    art.background("hive", 0, top, W, layout.AGENDA_BOX[1] - 12 - top, 240, 40)
+    art.dim(0, top, W, layout.AGENDA_BOX[1] - 12 - top, 0.55)
     s = CONTENT.scenario
     moves = {a["to"] for a in explore.actions(run) if a["kind"] == "move"}
     # Veins between known locations.
@@ -41,30 +42,24 @@ def draw(scene, game, t):
     pyxel.rect(0, layout.ACTION_Y, W, H - layout.ACTION_Y, C("ink"))
     pyxel.line(0, layout.ACTION_Y, W, layout.ACTION_Y, C("panel_hi"))
     here = s.locations[run.location]
-    text(12, layout.ACTION_Y + 6, here.name, "bone", "l")
-    text(12, layout.ACTION_Y + 20, "Actions", "ash", "m", None)
-    art.pips(
-        16 + art.text_w("Actions"),
-        layout.ACTION_Y + 24,
-        run.actions,
-        CONTENT.rules.actions_per_round,
-        col="rook",
-        size=6,
-    )
+    text(20, layout.ACTION_Y + 10, here.name, "bone", "l")
+    text(20, layout.ACTION_Y + 36, "Actions", "ash", "m", None)
+    art.pips(28 + art.text_w("Actions"), layout.ACTION_Y + 41, run.actions, CONTENT.rules.actions_per_round,
+             col="rook", size=10, gap=4)  # fmt: skip
     if run.loc().clues:
-        art.right(W - 12, layout.ACTION_Y + 8, f"{run.loc().clues} clue(s) here", "clue", "m", None)
+        art.right(W - 20, layout.ACTION_Y + 12, f"{run.loc().clues} clue(s) here", "clue", "m", None)
     art.menu(scene.menu)
     top_bar(game)
 
 
 def vein(x0, y0, x1, y1, t, lit):
-    n = int(math.hypot(x1 - x0, y1 - y0) / 4)
+    n = int(math.hypot(x1 - x0, y1 - y0) / 6)
     for i in range(n + 1):
         f = i / max(1, n)
-        x = x0 + (x1 - x0) * f + math.sin(f * 9 + t / 30) * 2
+        x = x0 + (x1 - x0) * f + math.sin(f * 9 + t / 30) * 3
         y = y0 + (y1 - y0) * f
         col = "entropy" if lit and (i + t // 6) % 6 == 0 else ("line" if lit else "panel_hi")
-        pyxel.circ(x, y, 1, C(col))
+        pyxel.circ(x, y, 2, C(col))
 
 
 def node(run, lid, rec, t, reachable):
@@ -72,8 +67,8 @@ def node(run, lid, rec, t, reachable):
     loc = run.loc(lid)
     if not run.available(lid):
         art.panel(x, y, w, h, fill="void", border="panel_hi")
-        art.icon("lock", x + w // 2 - 8, y + 6)
-        center(x + w // 2, y + 26, "???", "line", "m", None)
+        art.icon("lock", x + w // 2 - 16, y + 8, 2)
+        center(x + w // 2, y + 46, "???", "line", "m", None)
         return
     here = lid == run.location
     border = "rook" if here else ("crit" if reachable and (t // 20) % 2 == 0 else ("bone" if reachable else "line"))
@@ -81,35 +76,37 @@ def node(run, lid, rec, t, reachable):
     if loc.revealed:
         ax, ay = rec.art_xy
         bg = rec.art if rec.art in art.BG else "hive"
-        pyxel.blt(x + 2, y + 2, art.BG[bg], ax, ay, w - 4, h - 4)
+        art.background(bg, x + 2, y + 2, w - 4, h - 4, ax, ay)
         node_name(x, y, w, h, rec.name, "bone", band=True)
         if loc.clues:
             for i in range(loc.clues):
-                pyxel.circ(x + 6 + i * 6, y + 6, 2, C("clue"))
+                pyxel.circ(x + 10 + i * 10, y + 12, 4, C("clue"))
+                pyxel.circb(x + 10 + i * 10, y + 12, 4, C("void"))
         if loc.enemies:
-            art.icon("skull", x + w - 18, y + 2)
+            art.icon("skull", x + w - 22, y + 4)
             if len(loc.enemies) > 1:
-                text(x + w - 26, y + 3, str(len(loc.enemies)), "blood", "l")
-        text(x + 6 + loc.clues * 6, y + 2, f"S{rec.shroud}", "ash", "m")  # Shroud, after the clue dots.
+                art.right(x + w - 24, y + 3, str(len(loc.enemies)), "blood", "l")
+        text(x + 6 + loc.clues * 10, y + 3, f"S{rec.shroud}", "ash", "m")  # Shroud, after the clue dots.
     else:
         pyxel.rect(x + 2, y + 2, w - 4, h - 4, C("panel"))
-        art.icon("question", x + w // 2 - 8, y + 3)
+        art.icon("question", x + w // 2 - 16, y + 6, 2)
         node_name(x, y, w, h, rec.name, "ash")
     if here:
-        bob = int(math.sin(t / 12) * 2)
-        pyxel.circ(x + w // 2, y - 6 + bob, 6, C("rook"))
-        pyxel.circb(x + w // 2, y - 6 + bob, 6, C("void"))
-        center(x + w // 2, y - 12 + bob, "R", "void", "l", None)
+        bob = int(math.sin(t / 12) * 3)
+        pyxel.circ(x + w // 2, y - 10 + bob, 12, C("rook"))
+        pyxel.circb(x + w // 2, y - 10 + bob, 12, C("void"))
+        center(x + w // 2, y - 10 + bob - art.font_h("l") // 2, "R", "void", "l", None)
 
 
 def node_name(x, y, w, h, name, col, band=False):
     """A location's name in one or two lines at the bottom of its node."""
-    lines = wrap(name, w - 6, "m")[:2]
-    top = y + h - 3 - 11 * len(lines)
+    lh = art.font_h("m") + 1
+    lines = wrap(name, w - 10, "m")[:2]
+    top = y + h - 4 - lh * len(lines)
     if band:
-        pyxel.rect(x + 2, top - 1, w - 4, y + h - 1 - top, C("void"))
+        pyxel.rect(x + 2, top - 2, w - 4, y + h - top, C("void"))
     for i, ln in enumerate(lines):
-        center(x + w // 2, top + i * 11 - 1, ln, col, "m", None)
+        center(x + w // 2, top + i * lh, ln, col, "m", None)
 
 
 def agenda_card(run):
@@ -117,13 +114,13 @@ def agenda_card(run):
     ag = explore.current_agenda(run)
     art.panel(x, y, w, h, fill="ink", border="entropy")
     if not ag:
-        center(x + w // 2, y + 30, "SHE IS AWAKE", "entropy", "m")
+        center(x + w // 2, y + h // 2 - 10, "SHE IS AWAKE", "entropy", "l")
         return
-    text(x + 6, y + 3, f"AGENDA {ag.id}", "entropy", "m", None)
-    text(x + 6, y + 16, ag.name, "bone", "l", None)
-    art.bar(x + 6, y + 32, w - 12, 8, run.entropy, ag.entropy, fill="entropy", back="panel")
-    text(x + 6, y + 43, f"Entropy {run.entropy}/{ag.entropy}", "ash", "m", None)
-    text(x + 6, y + 57, "Tap to read", "line", "m", None)
+    text(x + 10, y + 8, f"AGENDA {ag.id}", "entropy", "s", None)
+    text(x + 10, y + 28, art.clip(ag.name, w - 20, "l"), "bone", "l", None)
+    art.bar(x + 10, y + 54, w - 20, 12, run.entropy, ag.entropy, fill="entropy", back="panel")
+    text(x + 10, y + 70, f"Entropy {run.entropy}/{ag.entropy}", "ash", "m", None)
+    text(x + 10, y + 94, "Tap to read", "line", "s", None)
 
 
 def act_card(run):
@@ -132,11 +129,11 @@ def act_card(run):
     art.panel(x, y, w, h, fill="ink", border="clue")
     if not a:
         return
-    text(x + 6, y + 3, f"ACT {a.id}", "clue", "m", None)
-    text(x + 6, y + 16, a.name, "bone", "l", None)
+    text(x + 10, y + 8, f"ACT {a.id}", "clue", "s", None)
+    text(x + 10, y + 28, art.clip(a.name, w - 20, "l"), "bone", "l", None)
     if a.clues:
-        art.bar(x + 6, y + 32, w - 12, 8, run.clues, a.clues, fill="clue", back="panel")
-        text(x + 6, y + 43, f"Clues {run.clues}/{a.clues}", "ash", "m", None)
+        art.bar(x + 10, y + 54, w - 20, 12, run.clues, a.clues, fill="clue", back="panel")
+        text(x + 10, y + 70, f"Clues {run.clues}/{a.clues}", "ash", "m", None)
     else:
-        text(x + 6, y + 36, "Kill the Queen.", "blood", "m", None)
-    text(x + 6, y + 57, "Tap to read", "line", "m", None)
+        text(x + 10, y + 62, "Kill the Queen.", "blood", "m", None)
+    text(x + 10, y + 94, "Tap to read", "line", "s", None)

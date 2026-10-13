@@ -2,6 +2,7 @@
 
 from nightengine import A
 
+from ..config import W
 from ..content import CONTENT
 from ..rules import explore
 from ..ui import layout
@@ -9,17 +10,20 @@ from ..ui.gesture import inside
 from ..ui.layout import CARD_H, CARD_W
 from .base import Button, Menu, QScene
 
+CARD_Y = 330
+RELIC_Y = 650
+
 
 def card_rects(n: int) -> list[tuple]:
     """The card choices at 1x, so their text stays sharp."""
-    gap = 16
+    gap = 28
     total = n * CARD_W + (n - 1) * gap
-    x0 = (320 - total) // 2
-    return [(x0 + i * (CARD_W + gap), 200, CARD_W, CARD_H) for i in range(n)]
+    x0 = (W - total) // 2
+    return [(x0 + i * (CARD_W + gap), CARD_Y, CARD_W, CARD_H) for i in range(n)]
 
 
 def relic_rects(n: int) -> list[tuple]:
-    return [(12 + i * 152, 380, 144, 92) for i in range(n)]
+    return [(20 + i * 256, RELIC_Y, 244, 150) for i in range(n)]
 
 
 class Reward(QScene):

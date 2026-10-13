@@ -31,6 +31,6 @@ RENDERER = Renderer(
     },
     PALETTE,
     art.bake,
-    ASSETS / "fonts" / "pixel-operator" / "m.bdf",
+    ASSETS / "fonts" / "atkinson" / "m.bdf",
     (CONTENT.colour["bone"], CONTENT.colour["void"]),
 )
