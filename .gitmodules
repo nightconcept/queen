@@ -1,0 +1,4 @@
+[submodule "nightengine"]
+	path = nightengine
+	url = https://github.com/nightconcept/NightEngine.git
+	branch = main

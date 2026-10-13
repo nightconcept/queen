@@ -1,0 +1,14 @@
+{
+ "_doc": "Enemies that only the Sovereign uses.",
+ "QUEEN": {"name": "The Queen", "hp": [140, 140], "art": "queen", "scale": 1.5, "boss": true, "evade": 99, "vp": 0,
+  "behaviour": "queen", "params": {"phase2_at": 0.5, "devour_heal": 10,
+   "dreaming": ["BROOD_PULSE", "PSYCHIC_LASH", "CARAPACE"], "awakened": ["CROWN_OF_SPINES", "CHOIR_SCREAM", "DEVOUR"]},
+  "intents": {
+   "BROOD_PULSE": {"kind": "summon", "effects": [{"op": "summon", "enemy": "BROOD_EGG"}]},
+   "PSYCHIC_LASH": {"kind": "attack", "effects": [{"op": "attack", "damage": 8}, {"op": "horror", "n": 2}]},
+   "CARAPACE": {"kind": "defend", "effects": [{"op": "shield", "n": 15}]},
+   "AWAKEN": {"kind": "unknown", "effects": [{"op": "awaken"}]},
+   "CROWN_OF_SPINES": {"kind": "attack", "effects": [{"op": "attack", "damage": 14}]},
+   "CHOIR_SCREAM": {"kind": "horror", "effects": [{"op": "horror", "n": 3}, {"op": "apply", "status": "SHAKEN", "n": 2}]},
+   "DEVOUR": {"kind": "buff", "effects": [{"op": "devour", "heal": 10}, {"op": "attack", "damage": 6}]}}}
+}

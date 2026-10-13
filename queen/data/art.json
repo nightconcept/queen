@@ -1,0 +1,232 @@
+{
+ "_doc": "Written by tools/import_art.py. Sprite strips: frames left to right.",
+ "sprites": {
+  "drone": {
+   "file": "sprites/drone.png",
+   "w": 64,
+   "h": 32,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "attack": [
+     4,
+     5
+    ],
+    "hit": [
+     9,
+     2
+    ],
+    "death": [
+     11,
+     8
+    ]
+   }
+  },
+  "brood_egg": {
+   "file": "sprites/brood_egg.png",
+   "w": 64,
+   "h": 32,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "hatch": [
+     4,
+     13
+    ],
+    "hit": [
+     17,
+     2
+    ],
+    "death": [
+     19,
+     5
+    ]
+   }
+  },
+  "stalker": {
+   "file": "sprites/stalker.png",
+   "w": 96,
+   "h": 64,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "attack": [
+     4,
+     7
+    ],
+    "death": [
+     11,
+     9
+    ]
+   }
+  },
+  "spitter": {
+   "file": "sprites/spitter.png",
+   "w": 64,
+   "h": 64,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "attack": [
+     4,
+     8
+    ],
+    "hit": [
+     12,
+     1
+    ],
+    "death": [
+     13,
+     8
+    ]
+   }
+  },
+  "warden": {
+   "file": "sprites/warden.png",
+   "w": 128,
+   "h": 64,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "death": [
+     4,
+     6
+    ]
+   }
+  },
+  "slug": {
+   "file": "sprites/slug.png",
+   "w": 80,
+   "h": 32,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "attack": [
+     4,
+     8
+    ],
+    "hit": [
+     12,
+     1
+    ],
+    "death": [
+     13,
+     8
+    ]
+   }
+  },
+  "queen": {
+   "file": "sprites/queen.png",
+   "w": 80,
+   "h": 64,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "hit": [
+     4,
+     1
+    ],
+    "attack": [
+     5,
+     8
+    ],
+    "death": [
+     13,
+     11
+    ],
+    "stun": [
+     24,
+     4
+    ]
+   }
+  },
+  "husk": {
+   "file": "sprites/husk.png",
+   "w": 61,
+   "h": 64,
+   "anims": {
+    "idle": [
+     0,
+     3
+    ]
+   }
+  },
+  "rook": {
+   "file": "sprites/rook.png",
+   "w": 80,
+   "h": 80,
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "shoot": [
+     4,
+     3
+    ],
+    "hit": [
+     7,
+     1
+    ]
+   }
+  },
+  "boom": {
+   "file": "sprites/boom.png",
+   "w": 48,
+   "h": 48,
+   "anims": {
+    "play": [
+     0,
+     8
+    ]
+   }
+  }
+ },
+ "icons": {
+  "file": "icons.png",
+  "size": 16,
+  "names": [
+   "heart",
+   "shield",
+   "sword",
+   "skull",
+   "crown",
+   "eye",
+   "hourglass",
+   "key",
+   "question",
+   "warning",
+   "gun",
+   "flask",
+   "lock",
+   "up",
+   "down"
+  ]
+ },
+ "backgrounds": {
+  "hive": {
+   "file": "bg/hive.png",
+   "w": 800,
+   "h": 448
+  },
+  "lab": {
+   "file": "bg/lab.png",
+   "w": 320,
+   "h": 240
+  }
+ }
+}

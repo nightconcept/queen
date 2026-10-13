@@ -1,0 +1,283 @@
+{
+ "_doc": "The Sovereign's map (GDD 7.4). `pos` is the node centre on the 320-wide map. `on_reveal`, `on_enter` and action `effects` are story ops.",
+ "BREACH_POINT": {
+  "name": "Breach Point",
+  "art": "lab",
+  "art_xy": [
+   96,
+   80
+  ],
+  "pos": [
+   160,
+   300
+  ],
+  "shroud": 1,
+  "clues": 0,
+  "links": [
+   "SPORE_GALLERY",
+   "HUSK_BARRACKS"
+  ],
+  "revealed": true,
+  "text": "Your pod is wedged in a wound in the hull. The hive has already begun to heal around it.",
+  "actions": [
+   {
+    "id": "REST",
+    "label": "Rest",
+    "rest": true
+   }
+  ]
+ },
+ "SPORE_GALLERY": {
+  "name": "Spore Gallery",
+  "art": "hive",
+  "art_xy": [
+   40,
+   230
+  ],
+  "pos": [
+   70,
+   240
+  ],
+  "shroud": 2,
+  "clues": 2,
+  "links": [
+   "BREACH_POINT",
+   "FEEDING_CHAMBER",
+   "ECHO_ARCHIVE"
+  ],
+  "text": "Columns of fungus pulse with slow light. The air is thick and sweet.",
+  "on_reveal": [
+   {
+    "op": "story",
+    "id": "THE_GARDENS"
+   }
+  ]
+ },
+ "HUSK_BARRACKS": {
+  "name": "Husk Barracks",
+  "art": "hive",
+  "art_xy": [
+   600,
+   250
+  ],
+  "pos": [
+   250,
+   240
+  ],
+  "shroud": 2,
+  "clues": 1,
+  "links": [
+   "BREACH_POINT",
+   "FEEDING_CHAMBER",
+   "BROOD_NURSERY"
+  ],
+  "text": "Rows of hollow armour hang from the ceiling. One of them is still moving.",
+  "on_reveal": [
+   {
+    "op": "spawn",
+    "enemies": [
+     "HUSK_CAPTAIN"
+    ]
+   }
+  ]
+ },
+ "FEEDING_CHAMBER": {
+  "name": "Feeding Chamber",
+  "art": "hive",
+  "art_xy": [
+   330,
+   280
+  ],
+  "pos": [
+   160,
+   180
+  ],
+  "shroud": 2,
+  "clues": 2,
+  "links": [
+   "SPORE_GALLERY",
+   "HUSK_BARRACKS",
+   "ECHO_ARCHIVE",
+   "BROOD_NURSERY"
+  ],
+  "text": "A pit of something that was once many things. The smell reaches into your skull.",
+  "on_enter": [
+   {
+    "op": "test",
+    "skill": "willpower",
+    "difficulty": 2,
+    "title": "The Smell",
+    "fail": [
+     {
+      "op": "horror",
+      "n": 1
+     }
+    ]
+   }
+  ],
+  "on_reveal": [
+   {
+    "op": "spawn",
+    "enemies": [
+     "SLUG",
+     "DRONE"
+    ]
+   }
+  ]
+ },
+ "ECHO_ARCHIVE": {
+  "name": "Echo Archive",
+  "art": "hive",
+  "art_xy": [
+   80,
+   100
+  ],
+  "pos": [
+   70,
+   120
+  ],
+  "shroud": 4,
+  "clues": 3,
+  "links": [
+   "SPORE_GALLERY",
+   "FEEDING_CHAMBER",
+   "THRONE_APPROACH"
+  ],
+  "text": "Thin membranes hum with recorded sound. Voices of the taken, looping forever.",
+  "actions": [
+   {
+    "id": "LISTEN",
+    "label": "Listen",
+    "once": true,
+    "test": {
+     "skill": "intellect",
+     "difficulty": 3,
+     "title": "Listen to the Echoes"
+    },
+    "success": [
+     {
+      "op": "clue",
+      "n": 1
+     },
+     {
+      "op": "xp",
+      "n": 1
+     },
+     {
+      "op": "story",
+      "id": "ECHO_LOG"
+     }
+    ],
+    "fail": [
+     {
+      "op": "horror",
+      "n": 1
+     }
+    ]
+   }
+  ]
+ },
+ "BROOD_NURSERY": {
+  "name": "Brood Nursery",
+  "art": "hive",
+  "art_xy": [
+   450,
+   200
+  ],
+  "pos": [
+   250,
+   120
+  ],
+  "shroud": 2,
+  "clues": 2,
+  "links": [
+   "HUSK_BARRACKS",
+   "FEEDING_CHAMBER",
+   "THRONE_APPROACH"
+  ],
+  "text": "Eggs the size of a man line the walls, each one warm and turning slowly.",
+  "on_reveal": [
+   {
+    "op": "spawn",
+    "enemies": [
+     "BROOD_EGG",
+     "BROOD_EGG",
+     "BROOD_EGG"
+    ]
+   }
+  ],
+  "actions": [
+   {
+    "id": "BURN",
+    "label": "Burn eggs",
+    "once": true,
+    "story": "BURN_THE_EGGS"
+   }
+  ]
+ },
+ "THRONE_APPROACH": {
+  "name": "Throne Approach",
+  "art": "hive",
+  "art_xy": [
+   250,
+   150
+  ],
+  "pos": [
+   160,
+   64
+  ],
+  "shroud": 3,
+  "clues": 2,
+  "links": [
+   "ECHO_ARCHIVE",
+   "BROOD_NURSERY",
+   "QUEENS_CHAMBER"
+  ],
+  "locked": true,
+  "locked_text": "Advance Act 1 to find the way.",
+  "text": "A ribbed corridor, wide as a street, rising toward a slow drumbeat.",
+  "on_reveal": [
+   {
+    "op": "spawn",
+    "enemies": [
+     "CHOIR_WARDEN"
+    ]
+   }
+  ],
+  "actions": [
+   {
+    "id": "REST",
+    "label": "Rest",
+    "rest": true
+   }
+  ]
+ },
+ "QUEENS_CHAMBER": {
+  "name": "Queen's Chamber",
+  "art": "hive",
+  "art_xy": [
+   200,
+   160
+  ],
+  "pos": [
+   160,
+   14
+  ],
+  "shroud": 0,
+  "clues": 0,
+  "links": [
+   "THRONE_APPROACH"
+  ],
+  "locked": true,
+  "locked_text": "Advance Act 2 to open it.",
+  "text": "She fills the chamber. She is dreaming, and the dream is you.",
+  "on_enter": [
+   {
+    "op": "boss",
+    "enemies": [
+     "QUEEN"
+    ]
+   }
+  ]
+ }
+}

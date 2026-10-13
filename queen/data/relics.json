@@ -1,0 +1,77 @@
+{
+ "_doc": "Relics: run-wide passives. `hooks` map a hook event to a handler in mech/hooks.py; `params` are its numbers.",
+ "LANTERN_BEACON": {
+  "name": "Lantern's Beacon",
+  "icon": "eye",
+  "pool": "start",
+  "text": "Once per Agenda, a Mythos phase adds no entropy.",
+  "hooks": {
+   "mythos_entropy": "lantern"
+  },
+  "params": {}
+ },
+ "SPENT_CASING": {
+  "name": "Spent Casing",
+  "icon": "gun",
+  "pool": "elite",
+  "text": "Start each battle with 1 Focus.",
+  "hooks": {
+   "battle_start": "start_status"
+  },
+  "params": {
+   "status": "FOCUS",
+   "n": 1
+  }
+ },
+ "HIVE_LENS": {
+  "name": "Hive Lens",
+  "icon": "eye",
+  "pool": "elite",
+  "text": "Enemies start battles Exposed 1.",
+  "hooks": {
+   "battle_start": "enemies_status"
+  },
+  "params": {
+   "status": "EXPOSED",
+   "n": 1
+  }
+ },
+ "CHITIN_PLATE": {
+  "name": "Chitin Plate",
+  "icon": "shield",
+  "pool": "elite",
+  "text": "Start each battle with 6 Shields.",
+  "hooks": {
+   "battle_start": "start_shields"
+  },
+  "params": {
+   "n": 6
+  }
+ },
+ "CROWN_SHARD": {
+  "name": "Crown Shard",
+  "icon": "crown",
+  "pool": "story",
+  "text": "+1 to all skill tests. Take 1 Horror at the start of each battle.",
+  "hooks": {
+   "test_bonus": "flat_bonus",
+   "battle_start": "start_horror"
+  },
+  "params": {
+   "bonus": 1,
+   "n": 1
+  }
+ },
+ "FIELD_MEDKIT": {
+  "name": "Field Medkit",
+  "icon": "heart",
+  "pool": "start",
+  "text": "After you win a battle, heal 6.",
+  "hooks": {
+   "battle_end": "heal_after_win"
+  },
+  "params": {
+   "n": 6
+  }
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "_doc": "The Sovereign: GDD 7.4. Acts advance on clues; agendas advance on entropy. Effects are story ops (mech/story.py).",
+ "name": "The Sovereign",
+ "subtitle": "Scenario I",
+ "intro": [
+  "LANTERN: Pod's through. You're inside the Sovereign. Rook, the walls are breathing on my feed.",
+  "LANTERN: The Queen is dormant, somewhere deep. Every minute she sleeps less. Find the way in. Kill her.",
+  "ROOK: Copy."
+ ],
+ "start": "BREACH_POINT",
+ "symbols": {
+  "BROOD": {"value": -1, "if_enemies": -2, "text": "-1, or -2 if an enemy is here."},
+  "CHOIR": {"value": -2, "fail": [{"op": "horror", "n": 1}], "text": "-2. If you fail, take 1 Horror."},
+  "CROWN": {"value": -3, "fail": [{"op": "entropy", "n": 1}], "text": "-3. If you fail, +1 entropy."}
+ },
+ "acts": [
+  {"id": "1", "name": "Breach", "clues": 4,
+   "front": "Find a way through the outer hive. Lantern needs readings to map the inner corridors.",
+   "back": "The walls remember the shape of a corridor. Lantern finds it in the noise. A path opens toward the Throne Approach.",
+   "effects": [{"op": "unlock", "location": "THRONE_APPROACH"}, {"op": "bag_add", "token": "BROOD"}]},
+  {"id": "2", "name": "The Path Inward", "clues": 5,
+   "front": "The Approach is guarded and thick with song. Gather enough to read the Queen's chamber.",
+   "back": "The Approach opens like a throat. Something enormous breathes beyond it.",
+   "effects": [{"op": "unlock", "location": "QUEENS_CHAMBER"}]},
+  {"id": "3", "name": "Regicide", "clues": null,
+   "front": "Enter the Queen's Chamber and kill her.",
+   "back": "", "effects": []}
+ ],
+ "agendas": [
+  {"id": "1", "name": "She Dreams", "entropy": 6,
+   "front": "The hive is quiet. Too quiet. Somewhere deep, a heart beats once a minute.",
+   "back": "A pulse runs through the hull. Every egg in the Nursery turns toward you.",
+   "effects": [{"op": "hive_buff", "hp": 2}, {"op": "spawn", "location": "BROOD_NURSERY", "enemies": ["STALKER"]}]},
+  {"id": "2", "name": "The Choir Wakes", "entropy": 7,
+   "front": "Lantern's voice keeps breaking up. The singing is getting louder.",
+   "back": "Lantern's voice breaks into static. The singing is inside the comms now.",
+   "effects": [{"op": "mythos_draws", "n": 2}, {"op": "log", "key": "lantern_garbled", "value": 1}]},
+  {"id": "3", "name": "Coronation", "entropy": 6,
+   "front": "The heartbeat is constant now. She is almost here.",
+   "back": "She opens her eyes.",
+   "effects": [{"op": "story", "id": "CORONATION"}]}
+ ],
+ "resolutions": {
+  "R1": {"name": "Regicide", "outcome": "good", "xp": 3, "next_entropy": 0,
+   "text": "The hive screams with one voice, then none. The Sovereign drifts, dead, toward a slow and silent orbit.",
+   "log": {"queen_slain": 1, "clean_kill": 1}},
+  "R2": {"name": "A Waking Death", "outcome": "neutral", "xp": 2, "next_entropy": 2,
+   "text": "She dies awake. Through the hull you hear the brood scatter, falling toward the cities without a mind.",
+   "log": {"queen_slain": 1, "brood_scattered": 1}},
+  "R3": {"name": "Coronation", "outcome": "bad", "xp": 1, "next_entropy": 4,
+   "text": "The Sovereign turns toward the planet. You reach the pod with her voice in your teeth.",
+   "log": {"queen_awake": 1}, "trauma": {"mental": 1}},
+  "DEFEAT": {"name": "Lost in the Hive", "outcome": "bad", "xp": 1, "next_entropy": 4,
+   "text": "Lantern keeps calling your name, long after the signal stops answering.",
+   "log": {"rook_lost": 1}}
+ }
+}

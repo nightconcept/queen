@@ -1,0 +1,330 @@
+{
+ "_doc": "Shared enemies. `behaviour` names a generator in mech/behaviours.py; `intents` are named moves made of intent ops (mech/intents.py). docs/repo/content.md lists the fields.",
+ "DRONE": {
+  "name": "Drone",
+  "hp": [
+   10,
+   12
+  ],
+  "art": "drone",
+  "evade": 2,
+  "vp": 0,
+  "behaviour": "cycle",
+  "params": {
+   "order": [
+    "BITE",
+    "BITE",
+    "SCREECH"
+   ]
+  },
+  "intents": {
+   "BITE": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 5
+     }
+    ]
+   },
+   "SCREECH": {
+    "kind": "debuff",
+    "effects": [
+     {
+      "op": "apply",
+      "status": "SHAKEN",
+      "n": 1
+     }
+    ]
+   }
+  }
+ },
+ "SPITTER": {
+  "name": "Spitter",
+  "hp": [
+   18,
+   20
+  ],
+  "art": "spitter",
+  "evade": 3,
+  "vp": 0,
+  "behaviour": "weighted",
+  "params": {
+   "weights": {
+    "ACID": 60,
+    "HARDEN": 40
+   },
+   "max_repeat": 2
+  },
+  "intents": {
+   "ACID": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 4
+     },
+     {
+      "op": "apply",
+      "status": "BLEED",
+      "n": 2
+     }
+    ]
+   },
+   "HARDEN": {
+    "kind": "defend",
+    "effects": [
+     {
+      "op": "shield",
+      "n": 6
+     }
+    ]
+   }
+  },
+  "clues": 1
+ },
+ "HUSK": {
+  "name": "Husk",
+  "hp": [
+   24,
+   24
+  ],
+  "art": "husk",
+  "evade": 3,
+  "vp": 0,
+  "statuses": {
+   "GUARD": 1
+  },
+  "behaviour": "cycle",
+  "params": {
+   "order": [
+    "RIFLE",
+    "BRACE",
+    "RIFLE"
+   ]
+  },
+  "intents": {
+   "RIFLE": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 3,
+      "times": 2
+     }
+    ]
+   },
+   "BRACE": {
+    "kind": "defend",
+    "effects": [
+     {
+      "op": "shield",
+      "n": 8
+     }
+    ]
+   }
+  }
+ },
+ "HUSK_CAPTAIN": {
+  "name": "Husk Captain",
+  "hp": [
+   40,
+   40
+  ],
+  "art": "husk",
+  "scale": 1.25,
+  "elite": true,
+  "evade": 4,
+  "vp": 1,
+  "clues": 1,
+  "behaviour": "cycle",
+  "params": {
+   "order": [
+    "RALLY",
+    "VOLLEY",
+    "DIG_IN"
+   ]
+  },
+  "intents": {
+   "RALLY": {
+    "kind": "buff",
+    "effects": [
+     {
+      "op": "rally",
+      "status": "MOMENTUM",
+      "n": 2
+     }
+    ]
+   },
+   "VOLLEY": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 4,
+      "times": 3
+     }
+    ]
+   },
+   "DIG_IN": {
+    "kind": "defend",
+    "effects": [
+     {
+      "op": "shield",
+      "n": 12
+     }
+    ]
+   }
+  }
+ },
+ "BROOD_EGG": {
+  "name": "Brood Egg",
+  "hp": [
+   10,
+   10
+  ],
+  "art": "brood_egg",
+  "evade": 1,
+  "vp": 0,
+  "statuses": {
+   "BROOD": 3
+  },
+  "behaviour": "hatch",
+  "params": {
+   "into": "DRONE"
+  },
+  "intents": {
+   "GESTATE": {
+    "kind": "hatch",
+    "effects": [
+     {
+      "op": "gestate"
+     }
+    ]
+   }
+  }
+ },
+ "SLUG": {
+  "name": "Spore Slug",
+  "hp": [
+   9,
+   11
+  ],
+  "art": "slug",
+  "evade": 1,
+  "vp": 0,
+  "behaviour": "cycle",
+  "params": {
+   "order": [
+    "SPORE",
+    "NIBBLE"
+   ]
+  },
+  "intents": {
+   "SPORE": {
+    "kind": "debuff",
+    "effects": [
+     {
+      "op": "add_cards",
+      "card": "SPORE",
+      "n": 1
+     }
+    ]
+   },
+   "NIBBLE": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 4
+     }
+    ]
+   }
+  }
+ },
+ "STALKER": {
+  "name": "Stalker",
+  "hp": [
+   30,
+   30
+  ],
+  "art": "stalker",
+  "evade": 4,
+  "vp": 1,
+  "hunter": true,
+  "behaviour": "stalker",
+  "params": {
+   "threshold": 5
+  },
+  "intents": {
+   "POUNCE": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 12
+     }
+    ]
+   },
+   "LURK": {
+    "kind": "debuff",
+    "effects": [
+     {
+      "op": "apply",
+      "status": "EXPOSED",
+      "n": 1
+     },
+     {
+      "op": "shield",
+      "n": 5
+     }
+    ]
+   }
+  },
+  "clues": 1
+ },
+ "CHOIR_WARDEN": {
+  "name": "Choir Warden",
+  "hp": [
+   60,
+   60
+  ],
+  "art": "warden",
+  "elite": true,
+  "evade": 5,
+  "vp": 1,
+  "behaviour": "cycle",
+  "params": {
+   "order": [
+    "HYMN",
+    "LASH",
+    "LASH"
+   ]
+  },
+  "intents": {
+   "HYMN": {
+    "kind": "horror",
+    "effects": [
+     {
+      "op": "horror",
+      "n": 2
+     },
+     {
+      "op": "shield_all",
+      "n": 4
+     }
+    ]
+   },
+   "LASH": {
+    "kind": "attack",
+    "effects": [
+     {
+      "op": "attack",
+      "damage": 10
+     }
+    ]
+   }
+  },
+  "clues": 1
+ }
+}

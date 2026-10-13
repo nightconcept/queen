@@ -1,0 +1,61 @@
+{
+ "_doc": "Hunters: the player characters. docs/repo/content.md lists the fields.",
+ "ROOK": {
+  "name": "Rook",
+  "title": "Kinetic Hunter",
+  "element": "K",
+  "art": "rook",
+  "health": 70,
+  "nerve": 7,
+  "skills": {
+   "willpower": 3,
+   "intellect": 3,
+   "combat": 4,
+   "agility": 3
+  },
+  "deck": [
+   [
+    "FIRE",
+    4
+   ],
+   [
+    "BRACE",
+    4
+   ],
+   [
+    "BREACH_CHARGE",
+    1
+   ],
+   [
+    "SURVEY",
+    1
+   ],
+   [
+    "NIGHTS_101",
+    1
+   ],
+   [
+    "TORMENTED_DREAMSCAPE",
+    1
+   ]
+  ],
+  "weapon": "RTX_SPECIAL_00",
+  "relics": [
+   "LANTERN_BEACON",
+   "FIELD_MEDKIT"
+  ],
+  "hooks": {
+   "crit": "kinetic_chain"
+  },
+  "elder_sign": {
+   "bonus": 2,
+   "effects": [
+    {
+     "op": "opening_draw",
+     "n": 1
+    }
+   ]
+  },
+  "blurb": "Ex-security contractor. Never wastes a word, or a round."
+ }
+}

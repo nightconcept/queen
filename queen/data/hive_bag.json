@@ -1,0 +1,13 @@
+{
+ "_doc": "The Hive Bag (GDD 9.2): token counts per difficulty. Symbol tokens get their effect from the scenario.",
+ "tokens": {
+  "+1": {"value": 1}, "0": {"value": 0}, "-1": {"value": -1}, "-2": {"value": -2}, "-3": {"value": -3},
+  "-4": {"value": -4}, "-5": {"value": -5}, "-6": {"value": -6},
+  "BROOD": {"symbol": true}, "CHOIR": {"symbol": true}, "CROWN": {"symbol": true},
+  "FAIL": {"auto_fail": true}, "ELDER": {"elder": true}
+ },
+ "EASY": {"+1": 2, "0": 3, "-1": 3, "-2": 2, "BROOD": 2, "CHOIR": 1, "CROWN": 1, "FAIL": 1, "ELDER": 1},
+ "STANDARD": {"+1": 1, "0": 2, "-1": 3, "-2": 2, "-3": 1, "-4": 1, "BROOD": 2, "CHOIR": 1, "CROWN": 1, "FAIL": 1, "ELDER": 1},
+ "HARD": {"0": 3, "-1": 2, "-2": 2, "-3": 2, "-4": 2, "-5": 1, "BROOD": 2, "CHOIR": 1, "CROWN": 1, "FAIL": 1, "ELDER": 1},
+ "EXPERT": {"0": 1, "-1": 2, "-2": 2, "-3": 2, "-4": 2, "-5": 1, "-6": 1, "BROOD": 2, "CHOIR": 1, "CROWN": 1, "FAIL": 1, "ELDER": 1}
+}

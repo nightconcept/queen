@@ -1,0 +1,50 @@
+[project]
+name = "queen"
+version = "0.0.1"
+description = "Queen: a Highcard deckbuilder prototype on NightEngine (Pyxel)"
+requires-python = ">=3.11"
+dependencies = ["nightengine==0.2.1"]
+
+[tool.setuptools]
+packages = ["queen"]
+py-modules = ["game"]
+
+[tool.uv.sources]
+nightengine = { path = "nightengine/python", editable = true }
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["nightengine"]  # The engine submodule lints in its own repo.
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["queen", "nightengine"]
+
+[tool.nightengine.web]
+title = "Queen"
+width = 320
+height = 714
+packages = ["queen", "nightengine"]
+assets = ["assets", "queen/data"]
+
+# Portrait 320x714 on every target: an exact 4x on the Pixel 10 Pro (1280x2856).
+[tool.nightengine.targets.desktop]
+controls = ["keyboard", "mouse"]
+
+[tool.nightengine.targets.web]
+controls = ["keyboard", "mouse", "touch"]
+
+[tool.nightengine.targets.android]
+controls = ["touch"]
+
+[tool.nightengine.android]
+app_id = "net.nightcircle.queen"
+orientation = "portrait"
+icon = "android/icon.png"
+keystore = "android/debug.keystore"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,19 @@
+{
+ "_doc": "Rules that every run shares. docs/repo/content.md lists the fields.",
+ "energy": 3,
+ "draw": 5,
+ "hand_limit": 10,
+ "shield_decay": true,
+ "entropy_every_rounds": 3,
+ "actions_per_round": 3,
+ "rest_heal": 0.3,
+ "rest_nerve": 2,
+ "bare_hands": {"name": "Bare Hands", "dice": 0, "hit": 5, "damage": 2},
+ "reward_choices": 3,
+ "tier_weights": {"S": 60, "P": 33, "X": 7},
+ "prime_pity": 1,
+ "scrip": {"normal": [10, 20], "elite": [25, 35]},
+ "xp_costs": {"plus": 1, "tier_up": 2, "prime": 3, "remove": 2},
+ "test_hand": 5,
+ "difficulty": "STANDARD"
+}

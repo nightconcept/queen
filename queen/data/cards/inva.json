@@ -1,0 +1,222 @@
+{
+ "_doc": "Highcard Set 001 (INVA) weapons, adapted to Queen's scale. Text follows ../highcard/highcard/cards/001-INVA. `weapon.damage` is per hit.",
+ "RTX_SPECIAL_00": {
+  "name": "RTX Special 00",
+  "upgrades_to": "FORGETFULNESS",
+  "set": "INVA",
+  "element": null,
+  "tier": "S",
+  "type": "weapon",
+  "subtype": "Revolver",
+  "cost": 1,
+  "target": "none",
+  "icons": [
+   "combat"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "+1 die. Hits deal double damage (4).",
+  "weapon": {
+   "dice": 1,
+   "hit": 5,
+   "damage": 2,
+   "durability": 6,
+   "special": "double"
+  },
+  "plus": {
+   "text": "+2 dice. Hits deal double damage (4).",
+   "weapon": {
+    "dice": 2,
+    "hit": 5,
+    "damage": 2,
+    "durability": 6,
+    "special": "double"
+   }
+  }
+ },
+ "NIGHTS_101": {
+  "name": "101 Nights",
+  "upgrades_to": "DECEMBER_REMEMBRANCE",
+  "set": "INVA",
+  "element": null,
+  "tier": "S",
+  "type": "weapon",
+  "subtype": "AR",
+  "cost": 1,
+  "target": "none",
+  "icons": [
+   "combat"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "+1 die. Rolls of 4 count as hits. 3 damage per hit.",
+  "weapon": {
+   "dice": 1,
+   "hit": 4,
+   "damage": 3,
+   "durability": 6
+  },
+  "plus": {
+   "text": "+1 die. Rolls of 4 count as hits. 4 damage per hit.",
+   "weapon": {
+    "dice": 1,
+    "hit": 4,
+    "damage": 4,
+    "durability": 6
+   }
+  }
+ },
+ "GRAVITAS_CANNON": {
+  "name": "Gravitas Cannon",
+  "set": "INVA",
+  "element": null,
+  "tier": "P",
+  "type": "weapon",
+  "subtype": "AR",
+  "cost": 2,
+  "target": "none",
+  "icons": [
+   "combat"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "+0 dice. On hit, deal 14 damage instead.",
+  "weapon": {
+   "dice": 0,
+   "hit": 5,
+   "damage": 1,
+   "durability": 3,
+   "special": "flat_on_hit",
+   "params": {
+    "flat": 14
+   }
+  },
+  "plus": {
+   "text": "+0 dice. On hit, deal 18 damage instead.",
+   "weapon": {
+    "dice": 0,
+    "hit": 5,
+    "damage": 1,
+    "durability": 3,
+    "special": "flat_on_hit",
+    "params": {
+     "flat": 18
+    }
+   }
+  }
+ },
+ "FORGETFULNESS": {
+  "name": "Forgetfulness",
+  "set": "INVA",
+  "element": null,
+  "tier": "X",
+  "type": "weapon",
+  "subtype": "Revolver",
+  "cost": 2,
+  "target": "none",
+  "icons": [
+   "combat"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "+2 dice. Crit. If you roll exactly one 6, deal 18 damage instead.",
+  "weapon": {
+   "dice": 2,
+   "hit": 5,
+   "damage": 3,
+   "crit": true,
+   "durability": 4,
+   "special": "exact_six",
+   "params": {
+    "flat": 18
+   }
+  },
+  "plus": {
+   "cost": 1
+  }
+ },
+ "DECEMBER_REMEMBRANCE": {
+  "name": "December Remembrance",
+  "set": "INVA",
+  "element": null,
+  "tier": "X",
+  "type": "weapon",
+  "subtype": "Shotgun",
+  "cost": 2,
+  "target": "none",
+  "icons": [
+   "combat"
+  ],
+  "art": "gun",
+  "pool": true,
+  "text": "+1 die. If you roll at least 1 hit, deal 12 damage instead.",
+  "weapon": {
+   "dice": 1,
+   "hit": 5,
+   "damage": 2,
+   "durability": 4,
+   "special": "flat_on_hit",
+   "params": {
+    "flat": 12
+   }
+  },
+  "plus": {
+   "text": "+2 dice. If you roll at least 1 hit, deal 12 damage instead.",
+   "weapon": {
+    "dice": 2,
+    "hit": 5,
+    "damage": 2,
+    "durability": 4,
+    "special": "flat_on_hit",
+    "params": {
+     "flat": 12
+    }
+   }
+  }
+ },
+ "DEVILS_EYE": {
+  "name": "Devil's Eye",
+  "set": "INVA",
+  "element": "Z",
+  "tier": "P",
+  "type": "weapon",
+  "subtype": "Sniper",
+  "cost": 2,
+  "target": "none",
+  "icons": [
+   "intellect"
+  ],
+  "art": "gun",
+  "text": "+3 dice. Only 6s hit. Crit. 4 damage per hit.",
+  "weapon": {
+   "dice": 3,
+   "hit": 6,
+   "damage": 4,
+   "crit": true,
+   "durability": 3
+  }
+ },
+ "TORMENTED_DREAMSCAPE": {
+  "name": "Tormented Dreamscape",
+  "set": "INVA",
+  "element": null,
+  "tier": "W",
+  "type": "weapon",
+  "cost": 0,
+  "target": "none",
+  "icons": [],
+  "art": "skull",
+  "weakness": true,
+  "text": "Weakness. When drawn, equip it. +3 dice. On hit, your Shields become 0.",
+  "weapon": {
+   "dice": 3,
+   "hit": 5,
+   "damage": 2,
+   "durability": 4,
+   "special": "dreamscape"
+  },
+  "hooks": {
+   "drawn": "forced_equip"
+  }
+ }
+}

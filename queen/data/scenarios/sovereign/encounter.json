@@ -1,0 +1,45 @@
+{
+ "_doc": "The encounter deck: story ids and counts. Each Mythos phase draws from it (GDD 8.5).",
+ "deck": [
+  [
+   "SKITTERING",
+   1
+  ],
+  [
+   "SPITTER_NEST",
+   1
+  ],
+  [
+   "SLUG_TIDE",
+   1
+  ],
+  [
+   "SOMETHING_FOLLOWS",
+   1
+  ],
+  [
+   "SPORE_BLOOM",
+   2
+  ],
+  [
+   "SCAN_SWEEP",
+   1
+  ],
+  [
+   "ALERT_PULSE",
+   1
+  ],
+  [
+   "CLEAR_SIGNAL",
+   1
+  ],
+  [
+   "COVER_POSITION",
+   2
+  ],
+  [
+   "WHISPERS",
+   1
+  ]
+ ]
+}

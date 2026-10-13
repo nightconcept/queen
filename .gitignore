@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+replays/
+frames/
+out/
+dist/
+node_modules/
+test-results/
+playwright-report/
+.tools/

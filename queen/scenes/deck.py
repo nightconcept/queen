@@ -1,0 +1,59 @@
+"""A card list over any screen: the deck, the draw pile, the discard pile. Tap a card to see it large."""
+
+from nightengine import A
+
+from ..ui import layout
+from ..ui.gesture import inside
+from .base import Button, Menu, QScene
+
+COLS = 4
+CELL_W, CELL_H = 70, 98
+GRID_Y = 70
+
+
+def cell_rect(i: int, scroll: int) -> tuple:
+    row, col = divmod(i, COLS)
+    x0 = (320 - COLS * CELL_W - (COLS - 1) * 6) // 2
+    return (x0 + col * (CELL_W + 6), GRID_Y + row * (CELL_H + 8) - scroll, CELL_W, CELL_H)
+
+
+class DeckScene(QScene):
+    overlay = True
+
+    def __init__(self, game, uids: list[int], title: str, cards=None):
+        super().__init__()
+        self.title = title
+        self.uids = uids
+        self.cards = cards  # {uid: CardInst} for battle-only cards; else the run's deck.
+        self.scroll = 0
+        self.inspect: int | None = None
+        self.menu = Menu()
+
+    def inst(self, game, uid):
+        if self.cards and uid in self.cards:
+            return self.cards[uid]
+        return game.run.find(uid)
+
+    def max_scroll(self) -> int:
+        rows = (len(self.uids) + COLS - 1) // COLS
+        return max(0, GRID_Y + rows * (CELL_H + 8) - 600)
+
+    def tick(self, game, inp, gestures):
+        if self.inspect is not None:
+            if any(g.kind == "tap" for g in gestures) or inp.hit(A) or self.back(inp):
+                self.inspect = None
+            return
+        for g in gestures:
+            if g.kind == "drag":
+                self.scroll = max(0, min(self.max_scroll(), self.scroll - g.dy))
+            if g.kind == "tap" and g.y < 620:
+                for i, uid in enumerate(self.uids):
+                    if inside(g.x, g.y, cell_rect(i, self.scroll)):
+                        self.inspect = uid
+        if inp.nav(1 << 1):
+            self.scroll = min(self.max_scroll(), self.scroll + 40)
+        if inp.nav(1 << 0):
+            self.scroll = max(0, self.scroll - 40)
+        self.menu.set([Button(layout.bottom_buttons(1)[0], "Close", "close")])
+        if self.menu.update(inp, gestures) == "close" or self.back(inp):
+            game.pop(self)

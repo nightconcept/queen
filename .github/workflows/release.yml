@@ -1,0 +1,85 @@
+name: Release
+
+# A v* tag builds the Android APK and publishes a GitHub release. A manual run builds the APK without publishing,
+# so you can download it from the run first. Only Android ships for now (docs/repo/release.md).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      - name: The tag matches the version in pyproject.toml
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          version=$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME, pyproject $version"; exit 1; }
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+
+      - name: Install just
+        run: uv tool install rust-just==1.58.0
+
+      - name: Tests
+        run: just check
+
+      # The runner image has the Android SDK at $ANDROID_HOME. This makes sure the platform the build needs is there.
+      - name: Android SDK packages
+        run: |
+          (yes || true) | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;36.0.0" > /dev/null
+
+      - name: Build the APK
+        run: just build android
+
+      - name: Check the APK's identity and signature
+        run: |
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          apk=$(ls dist/release/queen-*-android.apk)
+          "$tools/aapt" dump badging "$apk" | grep -E "^package:"
+          "$tools/apksigner" verify "$apk"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-android
+          path: dist/release/queen-*
+
+  publish:
+    needs: [android]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: dist/release
+
+      - name: Checksums
+        run: cd dist/release && rm -f SHA256SUMS && sha256sum * > SHA256SUMS && ls -l
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Queen $GITHUB_REF_NAME" \
+            --prerelease \
+            --notes "Vertical slice build: the Sovereign scenario with Rook, the Kinetic Hunter. Android APK only (debug-signed; portrait, touch). Install it on a phone with unknown sources allowed. See README.md."
