@@ -46,7 +46,8 @@ queen/
     rng.py              Named random streams (deck, dice, ai, bag, encounter, rewards, map).
   scenes/               One Scene per screen (no pyxel): title, explore, story, test, battle, reward,
                         rest, resolution, deck, dev (the `just dev` keys), base (Menu, Button, QScene).
-  ui/                   Pure geometry and text shared by scenes and render: layout, gesture, cardtext.
+  ui/                   Pure geometry and text shared by scenes and render: layout (and font widths),
+                        gesture, cardtext (card faces), intenttext (enemy moves in words).
   render/               Everything that draws (pyxel): art, cards, hud, battle, explore, screens.
   sound/tables.py       SFX and MUSIC as note strings (no pyxel). audio.py builds the AudioManager.
   app.py                The host App: keys, pads, touch, saves, recording.
@@ -54,8 +55,9 @@ queen/
   frames.py             Renders a recording to PNGs.
   data/                 The numbers. See content.md for every field.
 assets/                 Fonts and imported art (assets/art/README.md lists sources and licences).
-tools/                  import_art.py (art packs to assets), shots.py (headless screenshots from a
-                        script), sim.py (autopilot balance sample).
+tools/                  import_art.py (art packs to assets), import_font.py (Pixel Operator TTFs to BDF),
+                        shots.py (headless screenshots from a script), sim.py (autopilot balance sample).
+.claude/skills/release/ The repo's release skill: bump, tag, push, and keep one release on GitHub.
 tests/                  unittest: layers, content, battle, explore, touch, run. tests/browser: Playwright.
 android/                The APK icon and the committed debug keystore.
 docs/design/GDD.md      The game design. docs/exec-plans/: plans for coding sessions.

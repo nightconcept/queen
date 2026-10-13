@@ -7,6 +7,8 @@ from nightengine.sound import MAX_SOUNDS, note_errors, slots_used
 from queen.content import CONTENT, Params
 from queen.mech.registry import BEHAVIOURS, CONDITIONS, HOOKS, INTENT_OPS, OPS, STORY, WEAPON_SPECIALS
 from queen.sound.tables import MUSIC, SFX
+from queen.ui.cardtext import FACE_RULES, face_name, face_rules, fits
+from queen.ui.intenttext import intent_lines
 
 
 def walk_effects(effects):
@@ -56,6 +58,22 @@ class Content(unittest.TestCase):
             self.need(card.art in icons, f"card {cid}: unknown art icon {card.art!r}")
             if card.upgrades_to:
                 self.need(card.upgrades_to in CONTENT.cards, f"card {cid}: upgrades to unknown {card.upgrades_to!r}")
+
+    def test_card_faces_fit(self):
+        """Every card face reads in the body fonts: no word cut in the name, no rules line lost (GDD 14.2)."""
+        for cid, card in CONTENT.cards.items():
+            for c in (card, card.upgraded()):
+                font, lines = face_name(c)
+                name = c.face or c.name.removesuffix("+")
+                self.need(fits(name.split(), font) and len(lines) <= 3, f"card {cid}: name does not fit; add `face`")
+                rules = face_rules(c)
+                self.need(len(rules) <= FACE_RULES and fits(rules, "m"), f"card {cid}: face lines {rules} do not fit")
+
+    def test_intents_have_text(self):
+        for eid, e in CONTENT.enemies.items():
+            for iid, intent in e.intents.items():
+                title, lines = intent_lines(iid, intent, None)
+                self.need(lines and all(lines), f"enemy {eid} intent {iid}: no description")
 
     def test_enemies(self):
         sprites = CONTENT.art["sprites"]

@@ -4,10 +4,11 @@ from nightengine import A
 
 from ..ui import layout
 from ..ui.gesture import inside
+from ..ui.layout import CARD_H, CARD_W
 from .base import Button, Menu, QScene
 
 COLS = 4
-CELL_W, CELL_H = 70, 98
+CELL_W, CELL_H = CARD_W, CARD_H  # Cards at 1x: scaled pixel text does not read.
 GRID_Y = 70
 
 

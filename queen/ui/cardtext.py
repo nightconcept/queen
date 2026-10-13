@@ -1,9 +1,13 @@
 """Short card lines for small card faces, made from the card's data (its ops and weapon), not hand-written.
 
-A hand card is 64x90, too small for the full rules text. It shows these lines; the inspect view shows `text`.
+A hand card is 66x120, too small for the full rules text. It shows these lines; the inspect view shows `text`.
 """
 
 from ..content import CONTENT, Card
+from .layout import CARD_W, text_w, wrap
+
+FACE_W = CARD_W - 5  # The text width inside the frame (an advance ends with 1 px of space).
+FACE_RULES = 4  # Rules lines that fit under the art.
 
 STATUS_SHORT = {"EXPOSED": "Expose", "SHAKEN": "Shake", "MOMENTUM": "Momentum", "FOCUS": "Focus", "MARKED": "Mark",
                 "WARD": "Ward", "BLEED": "Bleed"}  # fmt: skip
@@ -38,7 +42,7 @@ def short_lines(card: Card) -> list[str]:
             else:
                 out.append(line)
         elif e.op == "last_round":
-            out.append("FIRE +2d/ammo")
+            out.append("FIRE +2d/ammo")  # Wraps on the face: FIRE / +2d/ammo.
         elif e.op == "shield":
             out.append(f"Shield {e.n}")
         elif e.op == "draw":
@@ -58,7 +62,7 @@ def short_lines(card: Card) -> list[str]:
     if card.type == "aura":
         out.append("Aura")
     if card.type == "equipment":
-        out.append(f"Gear {card.uses} uses")
+        out.append(f"{card.uses} uses")
     for k in ("exhaust", "retain", "ethereal"):
         if card.has(k):
             out.append(k.capitalize())
@@ -101,4 +105,28 @@ def keyword_help(card: Card) -> list[str]:
         out.append("Rush / Recon: only if it is the first card you play this turn.")
     if card.weapon:
         out.append("Ammo: each Fire uses 1. At 0 the weapon is spent until the next battle.")
+    return out
+
+
+def fits(lines: list[str], font: str, width: int = FACE_W) -> bool:
+    return all(text_w(ln, font) <= width for ln in lines)
+
+
+def face_name(card: Card) -> tuple[str, list[str]]:
+    """The font and lines for the name on a card face: two bold lines, or else three regular ones. `face` is a
+    shorter name for cards whose name does not fit (an upgrade's + shows in the corner instead)."""
+    name = card.face or card.name.removesuffix("+")
+    for font, most in (("l", 2), ("m", 3)):
+        words_fit = fits(name.split(), font)
+        lines = wrap(name, FACE_W, font)
+        if words_fit and len(lines) <= most:
+            return font, lines
+    return "m", wrap(name, FACE_W, "m")[:3]
+
+
+def face_rules(card: Card) -> list[str]:
+    """The short lines wrapped to the face width: a long line breaks between words."""
+    out = []
+    for ln in short_lines(card):
+        out += wrap(ln, FACE_W, "m") if text_w(ln, "m") > FACE_W else [ln]
     return out

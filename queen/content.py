@@ -116,6 +116,7 @@ class Card:
     signature: bool = False
     weakness: bool = False
     subtype: str = ""
+    face: str = ""  # A shorter name for the 66-px card face, when the name does not fit (GDD 14.2).
 
     def upgraded(self) -> "Card":
         """This card with its `plus` fields on top."""

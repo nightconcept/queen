@@ -6,7 +6,12 @@ import pyxel
 
 from ..config import ASSETS
 from ..content import CONTENT
-from ..ui.layout import FONTS
+from ..ui.layout import (
+    FONT_DIR,
+    FONTS,
+    clip,  # noqa: F401  (for the screens)
+)
+from ..ui.layout import text_w as _text_w
 
 FONT: dict[str, pyxel.Font] = {}
 SPRITES: dict[str, dict] = {}
@@ -23,8 +28,8 @@ def C(name: str) -> int:
 
 def bake():
     art = CONTENT.art
-    for name, (cw, ch) in FONTS.items():
-        FONT[name] = pyxel.Font(str(ASSETS / "fonts" / "spleen" / f"spleen-{cw}x{ch}.bdf"))
+    for name in FONTS:
+        FONT[name] = pyxel.Font(str(FONT_DIR / f"{name}.bdf"))
     for name, rec in art["sprites"].items():
         SPRITES[name] = {**rec, "img": pyxel.Image.from_image(str(ASSETS / "art" / rec["file"]))}
     for name, rec in art["backgrounds"].items():
@@ -46,7 +51,7 @@ def text(x, y, s, col="bone", font="m", shadow: str | None = "void"):
 
 
 def text_w(s: str, font="m") -> int:
-    return len(s) * FONTS[font][0]
+    return _text_w(s, font)
 
 
 def center(cx, y, s, col="bone", font="m", shadow: str | None = "void"):
@@ -62,7 +67,7 @@ def big(cx, y, s, col="bone", scale=1, shadow="void"):
     if scale == 1:
         center(cx, y, s, col, "xl", shadow)
         return
-    w, h = text_w(s, "xl") + 2, 26
+    w, h = text_w(s, "xl") + 2, 28
     img = pyxel.Image(w, h)
     img.cls(KEY)
     img.text(1, 1, s, C(shadow), FONT["xl"])
@@ -151,11 +156,16 @@ def button(b, focused=False, pressed=False):
     if not pressed:
         panel(x, y + 2, w, h, fill="void", border=None)
     panel(x, y + oy, w, h, fill=fill, border="white" if focused else border)
-    if b.note:
-        center(x + w // 2, y + oy + h // 2 - 11, b.label, ink, "m", None if b.style == "primary" else "void")
-        center(x + w // 2, y + oy + h // 2 + 2, b.note, ink if b.style == "primary" else "ash", "s", None)
+    shadow = None if b.style == "primary" else "void"
+    note_ink = ink if b.style == "primary" else "ash"
+    if b.note and h < 36:  # A short row: the label on the left, the note on the right.
+        text(x + 10, y + oy + (h - 13) // 2, clip(b.label, w - 30 - text_w(b.note)), ink, "m", shadow)
+        right(x + w - 10, y + oy + (h - 13) // 2, b.note, note_ink, "m", None)
+    elif b.note:
+        center(x + w // 2, y + oy + h // 2 - 13, b.label, ink, "m", shadow)
+        center(x + w // 2, y + oy + h // 2 + 1, b.note, note_ink, "m", None)
     else:
-        center(x + w // 2, y + oy + (h - 12) // 2, b.label, ink, "m", None if b.style == "primary" else "void")
+        center(x + w // 2, y + oy + (h - 13) // 2, b.label, ink, "m", shadow)
 
 
 def menu(m):
@@ -185,4 +195,4 @@ def orb(cx, cy, r, col, value: str, font="l"):
     pyxel.circ(cx, cy, r + 1, C("void"))
     pyxel.circ(cx, cy, r, C(col))
     pyxel.circ(cx - r // 3, cy - r // 3, max(1, r // 3), C("white"))
-    center(cx, cy - FONTS[font][1] // 2 + 1, value, "void", font, None)
+    center(cx, cy - FONTS[font] // 2 + 1, value, "void", font, None)

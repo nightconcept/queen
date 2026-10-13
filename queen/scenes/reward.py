@@ -6,20 +6,20 @@ from ..content import CONTENT
 from ..rules import explore
 from ..ui import layout
 from ..ui.gesture import inside
+from ..ui.layout import CARD_H, CARD_W
 from .base import Button, Menu, QScene
-
-BIG_W, BIG_H = 96, 135
 
 
 def card_rects(n: int) -> list[tuple]:
-    gap = 6
-    total = n * BIG_W + (n - 1) * gap
+    """The card choices at 1x, so their text stays sharp."""
+    gap = 16
+    total = n * CARD_W + (n - 1) * gap
     x0 = (320 - total) // 2
-    return [(x0 + i * (BIG_W + gap), 196, BIG_W, BIG_H) for i in range(n)]
+    return [(x0 + i * (CARD_W + gap), 200, CARD_W, CARD_H) for i in range(n)]
 
 
 def relic_rects(n: int) -> list[tuple]:
-    return [(20 + i * 144, 372, 136, 56) for i in range(n)]
+    return [(12 + i * 152, 380, 144, 92) for i in range(n)]
 
 
 class Reward(QScene):

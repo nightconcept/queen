@@ -6,17 +6,25 @@ from ..content import CONTENT
 from ..rules import explore, skilltest
 from ..ui import layout
 from ..ui.gesture import inside
+from ..ui.layout import CARD_H, CARD_W
 from .base import Button, Menu, QScene
 
 DRAW_FRAMES = 54
-MINI_W, MINI_H = 56, 78
 
 
 def commit_rects(n: int) -> list[tuple]:
-    gap = 4
-    total = n * MINI_W + (n - 1) * gap
-    x0 = (320 - total) // 2
-    return [(x0 + i * (MINI_W + gap), 360, MINI_W, MINI_H) for i in range(n)]
+    """Cards at 1x (sharp text), overlapping when there are many. A later card lies on top of an earlier one."""
+    step = min(CARD_W + 4, (320 - 16 - CARD_W) / max(1, n - 1))
+    x0 = (320 - (CARD_W + step * (n - 1))) / 2
+    return [(int(x0 + i * step), 352, CARD_W, CARD_H) for i in range(n)]
+
+
+def commit_at(n: int, x: int, y: int) -> int | None:
+    """The index of the topmost commit card under (x, y)."""
+    for i, r in reversed(list(enumerate(commit_rects(n)))):
+        if inside(x, y, r):
+            return i
+    return None
 
 
 class TestScene(QScene):
@@ -45,9 +53,9 @@ class TestScene(QScene):
         if self.phase == "commit":
             for g in gestures:
                 if g.kind == "tap":
-                    for uid, r in zip(self.hand, commit_rects(len(self.hand)), strict=True):
-                        if inside(g.x, g.y, r) and self.useful(game, uid):
-                            self.toggle(uid)
+                    i = commit_at(len(self.hand), g.x, g.y)
+                    if i is not None and self.useful(game, self.hand[i]):
+                        self.toggle(self.hand[i])
             if inp.nav(1 << 2) or inp.nav(1 << 3):
                 n = len(self.hand)
                 d = -1 if inp.nav(1 << 2) else 1

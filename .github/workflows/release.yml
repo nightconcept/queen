@@ -1,7 +1,8 @@
 name: Release
 
 # A v* tag builds the Android APK and publishes a GitHub release. A manual run builds the APK without publishing,
-# so you can download it from the run first. Only Android ships for now (docs/repo/release.md).
+# so you can download it from the run first. Only Android ships for now, and only the newest release is kept
+# (docs/repo/release.md).
 on:
   push:
     tags: ["v*"]
@@ -83,3 +84,16 @@ jobs:
             --title "Queen $GITHUB_REF_NAME" \
             --prerelease \
             --notes "Vertical slice build: the Sovereign scenario with Rook, the Kinetic Hunter. Android APK only (debug-signed; portrait, touch). Install it on a phone with unknown sources allowed. See README.md."
+
+      # Keep one release on the page (docs/repo/release.md): delete every older release and its files. The tags stay,
+      # so each build can still be found in the history.
+      - name: Delete the older releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' |
+            while read -r tag; do
+              [ "$tag" = "$GITHUB_REF_NAME" ] && continue
+              echo "deleting release $tag"
+              gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes
+            done

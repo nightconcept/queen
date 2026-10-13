@@ -38,5 +38,5 @@ def top_bar(game, view=None):
         art.bar(200, y + 22, 52, 6, clues, a.clues, fill="clue", back="panel")
     else:
         text(218, y + 4, str(clues), "clue", "m")
-    text(262, y + 4, f"XP {run.xp}", "crit", "s")
-    text(262, y + 16, f"R{run.round}", "ash", "s")
+    text(266, y + 4, f"XP {run.xp}", "crit", "m")
+    text(266, y + 18, f"Round {run.round}", "ash", "m")

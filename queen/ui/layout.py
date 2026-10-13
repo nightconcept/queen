@@ -6,34 +6,61 @@ Every rect is (x, y, w, h) in logical pixels.
 import math
 from dataclasses import dataclass
 
-from ..config import SAFE_BOTTOM, SAFE_TOP, H, W
+from ..config import ASSETS, SAFE_BOTTOM, SAFE_TOP, H, W
 
-# --- Text (Spleen is monospace, so widths are known without pyxel)
+# --- Text (Pixel Operator, proportional: the widths are read from the BDF files, so no pyxel is needed)
 
-FONTS = {"s": (5, 8), "m": (6, 12), "l": (8, 16), "xl": (12, 24)}
+FONT_DIR = ASSETS / "fonts" / "pixel-operator"
+FONTS = {"s": 8, "m": 13, "l": 13, "xl": 26}  # Font name -> line height. assets/fonts/pixel-operator/<name>.bdf
+_WIDTHS: dict[str, dict[str, int]] = {}
+
+
+def advances(font: str) -> dict[str, int]:
+    """Each glyph's advance width (DWIDTH), parsed once from the font's BDF."""
+    w = _WIDTHS.get(font)
+    if w is None:
+        w = _WIDTHS[font] = {}
+        ch = None
+        for line in (FONT_DIR / f"{font}.bdf").read_text().splitlines():
+            if line.startswith("ENCODING "):
+                ch = chr(int(line.split()[1]))
+            elif line.startswith("DWIDTH ") and ch is not None:
+                w[ch] = int(line.split()[1])
+    return w
 
 
 def text_w(s: str, font: str = "m") -> int:
-    return len(s) * FONTS[font][0]
+    w = advances(font)
+    return sum(w.get(c, w["?"]) for c in s)
+
+
+def font_h(font: str = "m") -> int:
+    return FONTS[font]
+
+
+def clip(s: str, width: int, font: str = "m") -> str:
+    """`s` cut to fit `width` pixels."""
+    while s and text_w(s, font) > width:
+        s = s[:-1]
+    return s
 
 
 def wrap(s: str, width: int, font: str = "m") -> list[str]:
     """Greedy word wrap to `width` pixels."""
-    cw = FONTS[font][0]
-    per = max(1, width // cw)
     lines: list[str] = []
     for para in s.split("\n"):
         line = ""
         for word in para.split():
-            while len(word) > per:
+            while text_w(word, font) > width:
                 if line:
                     lines.append(line)
                     line = ""
-                lines.append(word[:per])
-                word = word[per:]
+                part = clip(word, width, font) or word[0]
+                lines.append(part)
+                word = word[len(part) :]
             if not line:
                 line = word
-            elif len(line) + 1 + len(word) <= per:
+            elif text_w(line + " " + word, font) <= width:
                 line += " " + word
             else:
                 lines.append(line)
@@ -56,9 +83,14 @@ PILE_DRAW = (8, 490, 40, 30)
 PILE_DISCARD = (52, 490, 40, 30)
 ENERGY = (122, 505)
 END_TURN = (210, 488, 102, 34)
-CARD_W, CARD_H = 64, 90
+CARD_W, CARD_H = 66, 120
 HAND_Y = H - SAFE_BOTTOM - CARD_H // 2 - 6  # The centre line of a resting card.
-INSPECT = (W // 2 - 110, 150, 220, 300)
+INSPECT = (12, 40, W - 24, 640)
+
+
+def die_lands(i: int) -> int:
+    """The frame of the roll at which die `i` lands: they land in turn (render/battle.py `dice`)."""
+    return 30 + i * 5
 
 
 BATTLE_SCALE = 2  # Sprites draw at 2x in battle: the packs' creatures are small.
@@ -80,6 +112,12 @@ def foe_rect(i: int, n: int, w: int, h: int) -> tuple[int, int, int, int]:
     return (cx - tw // 2, FEET_Y - h - 10, tw, h + 30)
 
 
+def intent_rect(i: int, n: int, h: int) -> tuple[int, int, int, int]:
+    """The touch rect of the intent badge over enemy `i` of `n`, whose sprite is h tall (after scale)."""
+    cx = foe_x(i, n)
+    return (cx - 28, FEET_Y - h - 30, 56, 30)
+
+
 @dataclass
 class Slot:
     x: float
@@ -92,21 +130,19 @@ def hand_slots(n: int, lifted: int | None = None) -> list[Slot]:
     """Where each of `n` hand cards rests: a fan along a shallow arc (GDD 14.2)."""
     if n == 0:
         return []
-    span = W - 16 - CARD_W
-    gap = min(58, span / (n - 1)) if n > 1 else 0
+    span = W - 6 - CARD_W
+    gap = min(CARD_W + 2, span / (n - 1)) if n > 1 else 0  # Five cards overlap by their frames; more overlap more.
     x0 = W / 2 - gap * (n - 1) / 2
     out = []
     for i in range(n):
         x = x0 + gap * i
         dx = x - W / 2
-        slot = Slot(x, HAND_Y + dx * dx / 1400, rot=dx * 0.04)
-        if lifted is not None and i != lifted:
-            push = 18 if n > 4 else 8
+        slot = Slot(x, HAND_Y + int(dx * dx / 1400))  # No tilt: rotated pixel text does not read.
+        if lifted is not None and i != lifted and gap < CARD_W - 8:  # Spread a crowded hand around the lifted card.
+            push = 18
             slot.x += push if i > lifted else -push
         if i == lifted:
-            slot.y -= 30
-            slot.rot = 0
-            slot.scale = 1.15
+            slot.y -= 36  # Lifted at 1x so its text stays sharp.
         out.append(slot)
     return out
 

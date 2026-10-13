@@ -8,6 +8,7 @@ from ..config import H, W
 from ..content import CONTENT
 from ..rules import explore
 from ..ui import layout
+from ..ui.layout import wrap
 from . import art
 from .art import C, center, text
 from .hud import top_bar
@@ -41,10 +42,17 @@ def draw(scene, game, t):
     pyxel.line(0, layout.ACTION_Y, W, layout.ACTION_Y, C("panel_hi"))
     here = s.locations[run.location]
     text(12, layout.ACTION_Y + 6, here.name, "bone", "l")
-    text(12, layout.ACTION_Y + 22, "Actions", "ash", "s", None)
-    art.pips(54, layout.ACTION_Y + 23, run.actions, CONTENT.rules.actions_per_round, col="rook", size=6)
+    text(12, layout.ACTION_Y + 20, "Actions", "ash", "m", None)
+    art.pips(
+        16 + art.text_w("Actions"),
+        layout.ACTION_Y + 24,
+        run.actions,
+        CONTENT.rules.actions_per_round,
+        col="rook",
+        size=6,
+    )
     if run.loc().clues:
-        art.right(W - 12, layout.ACTION_Y + 10, f"{run.loc().clues} clue(s) here", "clue", "s", None)
+        art.right(W - 12, layout.ACTION_Y + 8, f"{run.loc().clues} clue(s) here", "clue", "m", None)
     art.menu(scene.menu)
     top_bar(game)
 
@@ -65,7 +73,7 @@ def node(run, lid, rec, t, reachable):
     if not run.available(lid):
         art.panel(x, y, w, h, fill="void", border="panel_hi")
         art.icon("lock", x + w // 2 - 8, y + 6)
-        center(x + w // 2, y + 26, "???", "line", "s", None)
+        center(x + w // 2, y + 26, "???", "line", "m", None)
         return
     here = lid == run.location
     border = "rook" if here else ("crit" if reachable and (t // 20) % 2 == 0 else ("bone" if reachable else "line"))
@@ -73,26 +81,35 @@ def node(run, lid, rec, t, reachable):
     if loc.revealed:
         ax, ay = rec.art_xy
         bg = rec.art if rec.art in art.BG else "hive"
-        pyxel.blt(x + 2, y + 2, art.BG[bg], ax, ay, w - 4, h - 16)
-        pyxel.rect(x + 2, y + h - 14, w - 4, 12, C("void"))
-        center(x + w // 2, y + h - 13, rec.name[:16], "bone", "s", None)
+        pyxel.blt(x + 2, y + 2, art.BG[bg], ax, ay, w - 4, h - 4)
+        node_name(x, y, w, h, rec.name, "bone", band=True)
         if loc.clues:
             for i in range(loc.clues):
                 pyxel.circ(x + 6 + i * 6, y + 6, 2, C("clue"))
         if loc.enemies:
             art.icon("skull", x + w - 18, y + 2)
             if len(loc.enemies) > 1:
-                text(x + w - 22, y + 4, str(len(loc.enemies)), "blood", "s")
-        text(x + w - 14, y + h - 26, str(rec.shroud), "ash", "s")
+                text(x + w - 26, y + 3, str(len(loc.enemies)), "blood", "l")
+        text(x + 6 + loc.clues * 6, y + 2, f"S{rec.shroud}", "ash", "m")  # Shroud, after the clue dots.
     else:
         pyxel.rect(x + 2, y + 2, w - 4, h - 4, C("panel"))
-        art.icon("question", x + w // 2 - 8, y + 6)
-        center(x + w // 2, y + h - 13, rec.name[:16], "ash", "s", None)
+        art.icon("question", x + w // 2 - 8, y + 3)
+        node_name(x, y, w, h, rec.name, "ash")
     if here:
         bob = int(math.sin(t / 12) * 2)
         pyxel.circ(x + w // 2, y - 6 + bob, 6, C("rook"))
         pyxel.circb(x + w // 2, y - 6 + bob, 6, C("void"))
-        center(x + w // 2, y - 10 + bob, "R", "void", "s", None)
+        center(x + w // 2, y - 12 + bob, "R", "void", "l", None)
+
+
+def node_name(x, y, w, h, name, col, band=False):
+    """A location's name in one or two lines at the bottom of its node."""
+    lines = wrap(name, w - 6, "m")[:2]
+    top = y + h - 3 - 11 * len(lines)
+    if band:
+        pyxel.rect(x + 2, top - 1, w - 4, y + h - 1 - top, C("void"))
+    for i, ln in enumerate(lines):
+        center(x + w // 2, top + i * 11 - 1, ln, col, "m", None)
 
 
 def agenda_card(run):
@@ -102,11 +119,11 @@ def agenda_card(run):
     if not ag:
         center(x + w // 2, y + 30, "SHE IS AWAKE", "entropy", "m")
         return
-    text(x + 6, y + 4, f"AGENDA {ag.id}", "entropy", "s", None)
-    text(x + 6, y + 14, ag.name, "bone", "m", None)
+    text(x + 6, y + 3, f"AGENDA {ag.id}", "entropy", "m", None)
+    text(x + 6, y + 16, ag.name, "bone", "l", None)
     art.bar(x + 6, y + 32, w - 12, 8, run.entropy, ag.entropy, fill="entropy", back="panel")
-    text(x + 6, y + 44, f"Entropy {run.entropy}/{ag.entropy}", "ash", "s", None)
-    text(x + 6, y + 56, "Tap to read", "line", "s", None)
+    text(x + 6, y + 43, f"Entropy {run.entropy}/{ag.entropy}", "ash", "m", None)
+    text(x + 6, y + 57, "Tap to read", "line", "m", None)
 
 
 def act_card(run):
@@ -115,11 +132,11 @@ def act_card(run):
     art.panel(x, y, w, h, fill="ink", border="clue")
     if not a:
         return
-    text(x + 6, y + 4, f"ACT {a.id}", "clue", "s", None)
-    text(x + 6, y + 14, a.name, "bone", "m", None)
+    text(x + 6, y + 3, f"ACT {a.id}", "clue", "m", None)
+    text(x + 6, y + 16, a.name, "bone", "l", None)
     if a.clues:
         art.bar(x + 6, y + 32, w - 12, 8, run.clues, a.clues, fill="clue", back="panel")
-        text(x + 6, y + 44, f"Clues {run.clues}/{a.clues}", "ash", "s", None)
+        text(x + 6, y + 43, f"Clues {run.clues}/{a.clues}", "ash", "m", None)
     else:
-        text(x + 6, y + 34, "Kill the Queen.", "blood", "s", None)
-    text(x + 6, y + 56, "Tap to read", "line", "s", None)
+        text(x + 6, y + 36, "Kill the Queen.", "blood", "m", None)
+    text(x + 6, y + 57, "Tap to read", "line", "m", None)

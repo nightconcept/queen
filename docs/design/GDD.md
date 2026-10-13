@@ -870,28 +870,34 @@ counter, reset when a Prime appears). **Skip** is always offered. Weights live i
  y=470 ├────────── play line ─────────────┤
        │ (3)⚡           [END TURN]  (7)↻  │  energy orb, end turn, draw/discard piles
  y=520 │   ╭────╮╭────╮╭────╮╭────╮╭────╮ │
-       │   │card││card││card││card││card│ │  hand fan: cards 64×90, overlap, arc
+       │   │card││card││card││card││card│ │  hand: cards 66×120, shallow arc
        │   │    ││    ││    ││    ││    │ │
  y=700 └──────────────────────────────────┘
 ```
 
-- Hand cards are 64 × 90 at rest. The face shows short lines generated from the card's ops and weapon
-  stats (`ui/cardtext.py`: "FIRE +2d", "Expose 2", "+1d hit4+"), never hand-written. The inspect view
-  shows the full rules text and a line for each keyword. A lifted card is drawn at
-  1.15×, a dragged one at 1.25× over a target. The inspect view is a 220-wide panel with the face at 2×.
-- The hand fans along an arc with a radius of 600 px. Cards rotate ±6° at the edges (Pyxel `blt` supports
-  `rotate` and `scale`). With more than 5 cards the overlap grows, and the touched card rises and pushes its
-  neighbours away (StS).
+- Hand cards are 66 × 120 at rest, so five sit side by side with only their frames overlapping. The face
+  shows the name (two bold lines or three regular ones; a card whose name does not fit has a shorter
+  `face` name), the type, and up to four short lines generated from the card's ops and weapon stats
+  (`ui/cardtext.py`: "FIRE +2d", "Expose 2", "+1d hit4+"), never hand-written. `tests/test_content.py`
+  checks that every face fits. The inspect view shows the face at 2×, the full name, the rules text and a
+  line for each keyword. A lifted card rises at 1×; a dragged one grows to 1.25× over a target.
+- The hand sits on a shallow arc with no tilt: rotated pixel text does not read. With more than 5 cards the
+  overlap grows, and the touched card rises and pushes its neighbours away (StS). Every other card list
+  (reward, deck, skill test) also draws cards at 1×.
+- **Dice roll.** Each die is thrown from Rook's hand, tumbles and bounces three times with its face
+  flickering (fast, then slower), and the dice land one after another. A hit flashes as it lands; the total
+  shows when the last die is down. The faces are rolled by the rules first: the animation only shows them.
 
 ### 14.3 Battle gestures
 
 | Gesture | Result |
 | --- | --- |
-| Touch a card in hand | It lifts (rises 24 px, scales 1.15×). Neighbours spread. |
+| Touch a card in hand | It lifts (rises 36 px at 1×). A crowded hand spreads. |
 | Drag | The card follows the finger with smoothing (lerp 0.35). It tilts with the x velocity (max 8°). For a targeted card, an arrow (StS) draws from the card to the finger, and enemies under the finger highlight with the damage preview. |
 | Release over a target / above the play line | The card plays: slam, flash, resolve. |
 | Release elsewhere | It springs back to the hand. |
 | Hold 0.3 s without moving (card, enemy, status, relic) | Inspect overlay. Release closes it. |
+| Tap an enemy or its intent | The enemy panel: its next move in words ("Deals 6 damage 2 times."), its other moves and its statuses. A tap closes it. Button path: UP with no card lifted, LEFT/RIGHT for the next enemy. |
 | Tap END TURN | Ends the turn. A long press is not needed; a confirm appears only if energy and playable cards remain (a setting). |
 | Tap the draw or discard pile | A pile viewer (a scrollable grid). |
 | Swipe up on the pile viewer | Scroll. |
@@ -952,8 +958,17 @@ Pyxel 2 supports more than 16 colours. Queen uses a **64-colour palette** in `da
 
 ### 15.4 Font
 
-**Spleen** (BSD 2-Clause), as in Nightrunner: 5×8 for card body text and small labels, 6×12 for UI, 8×16
-for titles, and 12×24 for big numbers. The files are in `assets/fonts/spleen/`.
+**Pixel Operator** (CC0, Jayvee Enaguas), a proportional pixel font, converted to BDF at its design sizes
+(`assets/fonts/pixel-operator/`, `tools/import_font.py`). At the 4× phone scale one logical pixel is about
+0.2 mm, so text needs a cap height of 9 px or more to read at arm's length:
+
+- `m` (Pixel Operator 16, 13 px line, 9 px caps): the body font. Card rules, numbers, labels, buttons.
+- `l` (Pixel Operator Bold 16): names, headings, intent and status numbers.
+- `xl` (Pixel Operator Bold 32): banners and big numbers.
+- `s` (Pixel Operator 8): only the type line on a card face. Never for anything the player must read to decide.
+
+Pixel text is drawn at whole scales with no rotation; a scaled or rotated card face is only shown while it
+moves. `ui/layout.py` reads the glyph widths from the BDF files, so layout and tests need no pyxel.
 
 ### 15.5 Audio
 

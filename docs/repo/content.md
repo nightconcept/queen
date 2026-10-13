@@ -9,6 +9,7 @@ JSON object keyed by an UPPER_CASE id; a `_doc` key is a comment. Records load i
 | Field | Meaning |
 | --- | --- |
 | `name`, `set` | Display name; `INVA` (Highcard Set 001) or `QUEEN`. |
+| `face` | Optional shorter name for the card face, when `name` does not fit it (`tests/test_content.py` checks). |
 | `element` | `R`, `G`, `K`, `E`, `Z` or null (neutral). Reward pools use the Hunter's element and neutral. |
 | `tier` | `B` basic, `S` Standard, `P` Prototype, `X` Prime, `W` weakness, `T` trauma. |
 | `type` | `action`, `weapon`, `equipment`, `aura`, `trauma`, `spore`. |

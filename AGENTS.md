@@ -16,7 +16,7 @@ target phone, the Pixel 10 Pro (1280x2856). Test every visual change at that siz
 - Python 3.11+ (venv 3.14), Pyxel 2.9.9 through the NightEngine submodule at `nightengine/` (main branch).
 - `uv`, `just`, `ruff`, `unittest`. Node + Playwright for the browser checks. JDK 17 (mise) and the Android SDK
   for the APK.
-- Art: CC0 packs (OneBitPudding, ansimuz, Kenney), imported by `tools/import_art.py`. Font: Spleen.
+- Art: CC0 packs (OneBitPudding, ansimuz, Kenney), imported by `tools/import_art.py`. Font: Pixel Operator (CC0), `tools/import_font.py`.
 
 ## Essential Commands
 
@@ -29,7 +29,7 @@ The public recipes are NightEngine's standard surface ([Game commands](nightengi
 - **Lint / Format**: `just lint` / `just fmt`
 - **Pictures**: `just _shots out/shots "dev:scene=map,wait:300,shot:map"` (headless, 320x714)
 - **Recordings**: `just autoplay --seed 4`, `just replay FILE`, `just frames FILE`; balance: `just _sim 20`
-- **APK**: `just build android` (only Android ships for now)
+- **APK**: `just build android` (only Android ships for now). To publish a build, use the `release` skill.
 
 ## Rules
 
@@ -53,7 +53,7 @@ The public recipes are NightEngine's standard surface ([Game commands](nightengi
 - [Structure](docs/repo/structure.md): where code, data and assets go.
 - [Content formats](docs/repo/content.md): every record field, op, hook and condition.
 - [Testing](docs/repo/testing.md): unit, touch, autopilot, browser and screenshot checks.
-- [Releases](docs/repo/release.md): the tag-driven Android release.
+- [Releases](docs/repo/release.md): the tag-driven Android release; one release is kept on GitHub.
 - [Plan 001](docs/exec-plans/active/001-vertical-slice.plan.md): the vertical slice.
 - [Art sources](assets/art/README.md): every art file's pack, author and licence.
 - [Engine README](nightengine/README.md) and its [Pyxel runtime](nightengine/docs/runtimes/python-pyxel.md).

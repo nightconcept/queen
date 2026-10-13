@@ -23,7 +23,7 @@
   "effects": [{"op": "apply", "status": "FOCUS", "n": 2, "to": "self"}, {"op": "draw", "n": 1}],
   "plus": {"text": "Gain 3 Focus. Draw 1.",
    "effects": [{"op": "apply", "status": "FOCUS", "n": 3, "to": "self"}, {"op": "draw", "n": 1}]}},
- "SUPPRESSING_FIRE": {"name": "Suppressing Fire", "upgrades_to": "OVERCLOCK", "set": "QUEEN", "element": "K", "tier": "S", "type": "action",
+ "SUPPRESSING_FIRE": {"name": "Suppressing Fire", "face": "Suppress Fire", "upgrades_to": "OVERCLOCK", "set": "QUEEN", "element": "K", "tier": "S", "type": "action",
   "cost": 1, "target": "enemy", "icons": ["combat"], "art": "gun", "pool": true,
   "text": "Fire. Shaken 1.",
   "effects": [{"op": "fire"}, {"op": "apply", "status": "SHAKEN", "n": 1, "to": "target"}],

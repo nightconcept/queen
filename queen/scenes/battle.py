@@ -88,6 +88,7 @@ class BattleScene(QScene):
             self.dice = {"faces": d["faces"], "hit": d["hit"], "crit": d["crit"], "rerolled": d["rerolled"],
                          "t": 0, "hits": d["hits"], "damage": d["damage"]}  # fmt: skip
             self.anim[0] = ("shoot", self.t)
+            self.timer = max(self.timer, layout.die_lands(len(d["faces"]) - 1) + 16)
             game.cue("dice")
         elif k == "damage":
             who = d["who"]
@@ -205,7 +206,9 @@ class BattleScene(QScene):
             self.finish_input(game, inp, gestures)
             return
         if self.inspect:
-            if any(g.kind in ("release", "tap") for g in gestures) or inp.hit(UP) or inp.hit(B) or inp.hit(A):
+            if self.inspect[0] == "foe" and (inp.nav(LEFT) or inp.nav(RIGHT)):
+                self.cycle_inspect(-1 if inp.nav(LEFT) else 1)
+            elif any(g.kind in ("release", "tap") for g in gestures) or inp.hit(UP) or inp.hit(B) or inp.hit(A):
                 self.inspect = None
             return
         self.pointer_input(game, gestures)
@@ -254,18 +257,29 @@ class BattleScene(QScene):
         slots = [self.slots.get(u) or Slot(0, 0) for u in hand]
         return layout.card_at(slots, x, y, self.lifted)
 
-    def foe_index_at(self, x, y) -> int | None:
+    def foe_index_at(self, x, y, intents=False) -> int | None:
+        """The enemy under (x, y). With `intents`, its intent badge counts too (tap to read it)."""
         foes = self.battle.foes
         living = self.view_foes()
         for i, f in enumerate(living):
             rec = CONTENT.enemies[f["id"]]
             art = CONTENT.art["sprites"][rec.art]
-            r = layout.foe_rect(
-                i, len(living), int(art["w"] * layout.foe_scale(rec)), int(art["h"] * layout.foe_scale(rec))
-            )
-            if inside(x, y, r) and f["alive"]:
+            h = int(art["h"] * layout.foe_scale(rec))
+            r = layout.foe_rect(i, len(living), int(art["w"] * layout.foe_scale(rec)), h)
+            hit = inside(x, y, r) or (intents and inside(x, y, layout.intent_rect(i, len(living), h)))
+            if hit and f["alive"]:
                 return next(j for j, foe in enumerate(foes) if foe.uid == f["uid"])
         return None
+
+    def cycle_inspect(self, d: int):
+        """Show the next living enemy in the inspect panel (the button path)."""
+        living = [f for f in self.battle.foes if f.alive]
+        if not living:
+            self.inspect = None
+            return
+        uids = [f.uid for f in living]
+        k = uids.index(self.inspect[1]) if self.inspect and self.inspect[1] in uids else -d
+        self.inspect = ("foe", uids[(k + d) % len(uids)])
 
     def pointer_input(self, game, gestures):
         b = self.battle
@@ -305,7 +319,11 @@ class BattleScene(QScene):
                 self.drag = None
                 self.hover = None
             elif g.kind == "tap":
-                if inside(g.x, g.y, layout.END_TURN):
+                j = self.foe_index_at(g.x, g.y, intents=True)
+                if j is not None:
+                    self.inspect = ("foe", b.foes[j].uid)
+                    self.lifted = None
+                elif inside(g.x, g.y, layout.END_TURN):
                     self.end_turn(game)
                 elif inside(g.x, g.y, layout.PILE_DRAW):
                     self.open_pile(game, "draw")
@@ -374,6 +392,9 @@ class BattleScene(QScene):
             if inp.hit(B):
                 self.target_mode = False
                 self.hover = None
+            return
+        if self.lifted is None and inp.hit(UP):  # Read the enemies' intents.
+            self.cycle_inspect(1)
             return
         if n == 0:
             return

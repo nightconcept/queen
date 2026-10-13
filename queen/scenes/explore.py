@@ -49,7 +49,7 @@ class Explore(QScene):
             Button((0, 0, 0, 0), a["label"], a, style="primary" if a["kind"] == "advance" else "normal") for a in acts
         ]
         items.append(Button((0, 0, 0, 0), "Deck", {"kind": "deck"}, style="ghost"))
-        rects = layout.button_grid(len(items), layout.ACTION_Y + 34)
+        rects = layout.button_grid(len(items), layout.ACTION_Y + 40)
         for b, r in zip(items, rects, strict=True):
             b.rect = r
         return items

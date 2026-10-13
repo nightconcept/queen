@@ -38,4 +38,4 @@ The Android APK is on the [releases page](https://github.com/nightconcept/queen/
 See [AGENTS.md](AGENTS.md) for the layout and the rules, and [the GDD](docs/design/GDD.md) for the design.
 `just check`, `just lint`, `just dev scene=battle enemies=QUEEN`.
 
-Art: CC0 packs by OneBitPudding, ansimuz and Kenney ([sources](assets/art/README.md)). Font: Spleen (BSD-2).
+Art: CC0 packs by OneBitPudding, ansimuz and Kenney ([sources](assets/art/README.md)). Font: Pixel Operator by Jayvee Enaguas (CC0).

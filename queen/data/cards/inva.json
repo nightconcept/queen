@@ -107,6 +107,7 @@
  },
  "FORGETFULNESS": {
   "name": "Forgetfulness",
+  "face": "Forget",
   "set": "INVA",
   "element": null,
   "tier": "X",
@@ -137,6 +138,7 @@
  },
  "DECEMBER_REMEMBRANCE": {
   "name": "December Remembrance",
+  "face": "December",
   "set": "INVA",
   "element": null,
   "tier": "X",
@@ -198,6 +200,7 @@
  },
  "TORMENTED_DREAMSCAPE": {
   "name": "Tormented Dreamscape",
+  "face": "Bad Dreams",
   "set": "INVA",
   "element": null,
   "tier": "W",

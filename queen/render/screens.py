@@ -41,34 +41,34 @@ def title(scene, game, t):
     art.sprite("rook", art.frame_of("rook", "idle", t, 10), 64, 500)
     log = game.campaign
     if log.get("runs"):
-        center(W // 2, 452, f"Runs {log.get('runs', 0)}  |  Queen slain {log.get('queen_slain', 0)}", "ash", "s", None)
+        center(W // 2, 452, f"Runs {log.get('runs', 0)}  |  Queen slain {log.get('queen_slain', 0)}", "ash", "m", None)
     art.menu(scene.menu)
-    center(W // 2, H - 26, "CC0 art: OneBitPudding, ansimuz, Kenney", "line", "s", None)
+    center(W // 2, H - 30, "CC0 art: OneBitPudding, ansimuz, Kenney", "line", "m", None)
     if scene.dossier:
         dossier(game)
 
 
 def dossier(game):
     art.dim(0, 0, W, H, 0.8)
-    art.panel(20, 120, 280, 420, fill="ink", border="rook")
-    center(W // 2, 132, "HUNTER'S DOSSIER", "rook", "l")
+    art.panel(16, 100, 288, 480, fill="ink", border="rook")
+    center(W // 2, 112, "HUNTER'S DOSSIER", "rook", "l")
     h = CONTENT.hunter
-    text(36, 160, f"{h.name}, {h.title}", "bone", "m")
-    y = 178
-    for ln in wrap(h.blurb, 248, "s"):
-        text(36, y, ln, "ash", "s", None)
-        y += 10
+    text(30, 140, f"{h.name}, {h.title}", "bone", "l")
+    y = 160
+    for ln in wrap(h.blurb, 260, "m"):
+        text(30, y, ln, "ash", "m", None)
+        y += 14
     y += 8
     log = game.campaign
     if not log:
         text(36, y, "No runs yet. The Sovereign waits.", "ash", "m")
     for k, v in sorted(log.items()):
-        if y > 520:
+        if y > 540:
             break
-        text(36, y, k.replace("_", " "), "bone", "s", None)
-        art.right(284, y, str(v), "crit", "s", None)
-        y += 11
-    center(W // 2, 524, "Tap to close", "line", "s", None)
+        text(30, y, k.replace("_", " "), "bone", "m", None)
+        art.right(290, y, str(v), "crit", "m", None)
+        y += 14
+    center(W // 2, 560, "Tap to close", "line", "m", None)
 
 
 # --- Story
@@ -99,11 +99,11 @@ def story(scene, game, t):
     kind = {"treachery": "TREACHERY", "enemy": "ENEMY", "boon": "BOON", "agenda": "AGENDA", "act": "ACT",
             "mythos": "MYTHOS PHASE"}.get(scene.frame, "")  # fmt: skip
     if kind:
-        text(x + 10, y + 6, kind, col, "s", None)
-        y += 12
+        text(x + 10, y + 6, kind, col, "m", None)
+        y += 16
     for ln in wrap(scene.title, w - 20, "l"):
         text(x + 10, y + 4, ln, "bone", "l")
-        y += 18
+        y += 15
     y += 6
     left = scene.chars
     for para in scene.text:
@@ -111,14 +111,14 @@ def story(scene, game, t):
         left -= len(para)
         for ln in wrap(shown, w - 20, "m"):
             text(x + 10, y, ln, "bone" if not para.startswith(("LANTERN", "ROOK")) else "clue", "m", None)
-            y += 13
+            y += 14
         y += 6
         if left <= 0:
             break
     if scene.typed:
         art.menu(scene.menu)
     elif (t // 20) % 2:
-        center(W // 2, top + h + 120, "tap to skip", "line", "s", None)
+        center(W // 2, top + h + 120, "tap to skip", "line", "m", None)
 
 
 # --- Skill test
@@ -138,14 +138,14 @@ def test(scene, game, t):
     if scene.phase == "commit":
         pct = int(scene.chance(game) * 100)
         center(W // 2, 140, f"Chance to pass: {pct}%", "crit" if pct >= 60 else "bone", "m")
-        center(W // 2, 336, "Commit cards for their icons (they rest until", "ash", "s", None)
-        center(W // 2, 346, "the next battle):", "ash", "s", None)
+        center(W // 2, 300, "Commit cards for their icons.", "ash", "m", None)
+        center(W // 2, 314, "They rest until the next battle.", "ash", "m", None)
         for i, (uid, r) in enumerate(zip(scene.hand, commit_rects(len(scene.hand)), strict=True)):
             inst = run.find(uid)
             useful = scene.useful(game, uid)
             sel = uid in scene.committed
             rx, ry, rw, rh = r
-            mini_card(inst.card, rx, ry - (10 if sel else 0), rw, rh, selected=sel, dim=not useful)
+            mini_card(inst.card, rx, ry - (12 if sel else 0), rw, rh, selected=sel, dim=not useful)
             if i == scene.cursor:
                 pyxel.rectb(rx - 2, ry - 2, rw + 4, rh + 4, C("white"))
         bag(run, t, 200)
@@ -171,8 +171,8 @@ def bag(run, t, y, shake=False):
     pyxel.elli(cx - 34, y - 6, 68, 74, C("panel_hi"))
     pyxel.elli(cx - 30, y - 2, 60, 66, C("panel"))
     pyxel.tri(cx - 14, y - 4, cx + 14, y - 4, cx, y - 20, C("panel_hi"))
-    center(cx, y + 24, "HIVE BAG", "ash", "s", None)
-    center(cx, y + 34, f"{len(run.bag)} tokens", "line", "s", None)
+    center(cx, y + 18, "HIVE BAG", "ash", "m", None)
+    center(cx, y + 32, f"{len(run.bag)} tokens", "line", "m", None)
 
 
 # --- Reward
@@ -192,22 +192,22 @@ def reward(scene, game, t):
     if st.get("xp"):
         parts.append(f"+{st['xp']} XP")
     center(W // 2, 100, "   ".join(parts), "bone", "m")
-    center(W // 2, 176, "Choose a card (hold to read)", "ash", "s", None)
+    center(W // 2, 176, "Choose a card (hold to read)", "ash", "m", None)
     for cid, r in zip(st["cards"], card_rects(len(st["cards"])), strict=True):
         x, y, w, h = r
         sel = scene.card == cid
         mini_card(CONTENT.card(cid), x, y - (8 if sel else 0), w, h, selected=sel)
-        center(x + w // 2, y + h + 4, CONTENT.cards[cid].name[:16], "crit" if sel else "bone", "s", None)
     if st["relics"]:
-        center(W // 2, 356, "Choose a relic", "ash", "s", None)
+        center(W // 2, 360, "Choose a relic", "ash", "m", None)
         for rid, r in zip(st["relics"], relic_rects(len(st["relics"])), strict=True):
             rel = CONTENT.relics[rid]
             x, y, w, h = r
             art.panel(x, y, w, h, fill="ink", border="crit" if scene.relic == rid else "line")
             art.icon(rel.icon, x + 4, y + 4)
-            text(x + 22, y + 6, rel.name[:18], "crit", "s", None)
-            for i, ln in enumerate(wrap(rel.text, w - 10, "s")[:4]):
-                text(x + 5, y + 20 + i * 9, ln, "bone", "s", None)
+            name = wrap(rel.name, w - 26, "l")
+            text(x + 22, y + 5, art.clip(name[0], w - 26, "l"), "crit", "l", None)
+            for i, ln in enumerate(wrap(rel.text, w - 10, "m")[:5]):
+                text(x + 5, y + 22 + i * 13, ln, "bone", "m", None)
     art.menu(scene.menu)
     if scene.inspect:
         inspect_panel(CONTENT.card(scene.inspect))
@@ -222,10 +222,11 @@ def rest(scene, game, t):
     art.background("lab", 0, 40, W, 200, 0, 20)
     art.dim(0, 40, W, 200, 0.45)
     art.big(W // 2, 60, "REST", "clue", scale=2)
-    center(W // 2, 116, f"Health {run.hp}/{run.max_hp}   Nerve {run.nerve}/{run.max_nerve}   XP {run.xp}", "bone", "s")
+    art.dim(0, 110, W, 22, 0.85)
+    center(W // 2, 114, f"Health {run.hp}/{run.max_hp}  Nerve {run.nerve}/{run.max_nerve}  XP {run.xp}", "bone", "m")
     if scene.rested:
         center(W // 2, 166, scene.flash, "spore", "m")
-    center(W // 2, 232, "Spend XP (Highcard tier path)", "ash", "s", None)
+    center(W // 2, 230, "Spend XP (Highcard tier path)", "ash", "m", None)
     art.menu(scene.menu)
     if scene.rested and scene.flash and scene.t % 120 < 90:
         pass
@@ -246,7 +247,7 @@ def resolution(scene, game, t):
     pyxel.dither(a)
     art.big(W // 2, 300, s["name"].upper(), col)
     center(W // 2, 330, {"good": "RESOLUTION 1", "neutral": "RESOLUTION 2", "bad": "BAD END"}.get(s["outcome"], ""),
-           "ash", "s", None)  # fmt: skip
+           "ash", "m", None)  # fmt: skip
     y = 352
     for ln in wrap(s["text"], W - 40, "m"):
         text(20, y, ln, "bone", "m")
@@ -257,8 +258,8 @@ def resolution(scene, game, t):
     for k, v in s["log"].items():
         if k.startswith(("outcome_", "runs")) or y > H - 90:
             continue
-        text(20, y, f"Log: {k.replace('_', ' ')} = {v}", "ash", "s", None)
-        y += 10
+        text(20, y, f"Log: {k.replace('_', ' ')} = {v}", "ash", "m", None)
+        y += 14
     pyxel.dither(1.0)
     if t >= 60:
         art.menu(scene.menu)
@@ -270,7 +271,7 @@ def resolution(scene, game, t):
 def deck(scene, game, t):
     art.dim(0, 0, W, H, 0.92)
     center(W // 2, SAFE_TOP + 20, scene.title, "bone", "l")
-    center(W // 2, SAFE_TOP + 38, f"{len(scene.uids)} cards. Tap one to read it.", "ash", "s", None)
+    center(W // 2, SAFE_TOP + 38, f"{len(scene.uids)} cards. Tap one to read it.", "ash", "m", None)
     pyxel.clip(0, 66, W, 560)
     for i, uid in enumerate(scene.uids):
         inst = scene.inst(game, uid)

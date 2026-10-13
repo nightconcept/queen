@@ -13,5 +13,7 @@ Every file here comes from a CC0 (public domain) pack, cut and quantised to the 
 
 Credit is not required by CC0, but the title screen names the artists.
 
-The fonts are in `../fonts/spleen/`: Spleen 2.2.0 by Frederic Cambus, BSD 2-Clause (`LICENSE`), from
-https://github.com/fcambus/spleen.
+The fonts are in `../fonts/pixel-operator/`: Pixel Operator by Jayvee Enaguas (HarvettFox96), CC0 1.0
+(`LICENSE`), from https://www.dafont.com/pixel-operator.font. `tools/import_font.py` converts the TTFs to BDF
+at their design sizes: `s` (Pixel Operator 8), `m` (Pixel Operator 16), `l` (Pixel Operator Bold 16) and `xl`
+(Pixel Operator Bold 32).

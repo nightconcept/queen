@@ -31,6 +31,6 @@ RENDERER = Renderer(
     },
     PALETTE,
     art.bake,
-    ASSETS / "fonts" / "spleen" / "spleen-6x12.bdf",
+    ASSETS / "fonts" / "pixel-operator" / "m.bdf",
     (CONTENT.colour["bone"], CONTENT.colour["void"]),
 )
